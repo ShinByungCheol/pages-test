@@ -62,7 +62,7 @@ export const HomeScreen = ({ navigation, route }) => {
   const [messages, setMessages] = useState([]);
   const [votes, setVotes] = useState([]);
   const totalPages = 3; // 총 페이지 수
-
+  const [formattedVotes, setFormattedVotes] = useState([]);
   const [unreadMessageCount, setUnreadMessageCount] =
     useState(0);
   const handleScroll = (event) => {
@@ -189,16 +189,20 @@ export const HomeScreen = ({ navigation, route }) => {
         if (response.status === 200) {
           // Assuming the response data is an array of messages
           const votesData = response.data;
-          console.log('투표 데이터', response.data);
-
-          // Extracting and mapping relevant data from the response
+          console.log(
+            JSON.stringify(response.data, null, 2)
+          );
           const formattedVotes = votesData.map((vote) => ({
             category: vote.category,
-            title: vote.createdBy,
+            title: vote.title,
             user: vote.user,
-            question: vote.title,
+            question: vote.question,
+            choices: vote.choiceDtos.map((choice) => ({
+              id: choice.id,
+              text: choice.text,
+            })),
           }));
-
+          console.log('Formatted Votes:', formattedVotes);
           // Set votes only if there is data
           if (formattedVotes.length > 0) {
             setVotes(formattedVotes);
@@ -312,6 +316,23 @@ export const HomeScreen = ({ navigation, route }) => {
     } else {
       return null; // Don't render anything for posts outside the current page
     }
+  };
+  const handleCategoryPress = (selectedCategory) => {
+    // Filter votes for the selected category
+    const filteredVotes = votes.filter(
+      (vote) => vote.category === selectedCategory
+    );
+
+    // Navigate to CategoryScreen with category and filteredVotes
+    navigation.navigate('CategoryScreen', {
+      category: selectedCategory,
+      isLoggedIn,
+      userId,
+      jwtToken,
+      nickname,
+      updateDM2,
+      filteredVotes,
+    });
   };
   return (
     <View>
@@ -428,14 +449,7 @@ export const HomeScreen = ({ navigation, route }) => {
                 <TouchableOpacity
                   key={category}
                   onPress={() =>
-                    navigation.navigate('CategoryScreen', {
-                      category,
-                      isLoggedIn,
-                      userId,
-                      jwtToken,
-                      nickname,
-                      updateDM2,
-                    })
+                    handleCategoryPress(category)
                   }
                 >
                   <View style={styles.category_sub_box}>

@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   View,
   Text,
@@ -8,6 +7,9 @@ import {
 import { AntDesign } from '@expo/vector-icons';
 import { styles, SCREEN_WIDTH } from './styles';
 import { MaterialIcons } from '@expo/vector-icons';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 export const AllCategoryScreen = ({
   navigation,
   route,
@@ -32,6 +34,69 @@ export const AllCategoryScreen = ({
     '난 고양이 키우는데 너는?',
     '어떤 음식이 최고야?',
   ];
+  const [votes, setVotes] = useState([]);
+
+  const handleCategoryPress = (selectedCategory) => {
+    // Filter votes for the selected category
+    const filteredVotes = votes.filter(
+      (vote) => vote.category === selectedCategory
+    );
+
+    // Navigate to CategoryScreen with category and filteredVotes
+    navigation.navigate('CategoryScreen', {
+      category: selectedCategory,
+      isLoggedIn,
+      userId,
+      jwtToken,
+      nickname,
+      updateDM2,
+      filteredVotes,
+    });
+  };
+
+  useEffect(() => {
+    const voteData = async () => {
+      try {
+        const response = await axios.get(
+          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/polls/all',
+          {
+            headers: {
+              'AUTH-TOKEN': jwtToken,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          // Assuming the response data is an array of messages
+          const votesData = response.data;
+          console.log('투표 데이터', response.data);
+
+          // Extracting and mapping relevant data from the response
+          const formattedVotes = votesData.map((vote) => ({
+            category: vote.category,
+            title: vote.createdBy,
+            user: vote.user,
+            question: vote.title,
+          }));
+
+          // Set votes only if there is data
+          if (formattedVotes.length > 0) {
+            setVotes(formattedVotes);
+          }
+        } else {
+          console.error(
+            'Failed to fetch votes:',
+            response.data
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching votes:', error);
+      }
+    };
+    // Call the fetchData function to fetch votes when the component mounts
+    voteData();
+  }, []);
+
   return (
     <View>
       <View style={styles.main_Row}>
@@ -63,39 +128,26 @@ export const AllCategoryScreen = ({
       <View style={styles.AllCategory_View}>
         <View style={styles.Allcategory_category_View}>
           {categories.map((category, index) => (
-            <View
+            <TouchableOpacity
               key={category}
-              style={styles.Allcategory_category_text_view}
+              onPress={() => handleCategoryPress(category)}
             >
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('CategoryScreen', {
-                    isLoggedIn: true,
-                    userId,
-                    jwtToken,
-                    nickname,
-                    updateDM2,
-                    category,
-                  })
-                }
-              >
-                <View style={styles.main_Row}>
-                  <MaterialIcons
-                    name="category"
-                    size={24}
-                    color="black"
-                  />
-                  <Text
-                    style={styles.Allcategory_category_text}
-                  >
-                    {category}
-                  </Text>
-                </View>
-                <Text style={styles.Allcategory_title_text}>
-                  {titles[index]}
+              <View style={styles.main_Row}>
+                <MaterialIcons
+                  name="category"
+                  size={24}
+                  color="black"
+                />
+                <Text
+                  style={styles.Allcategory_category_text}
+                >
+                  {category}
                 </Text>
-              </TouchableOpacity>
-            </View>
+              </View>
+              <Text style={styles.Allcategory_title_text}>
+                {titles[index]}
+              </Text>
+            </TouchableOpacity>
           ))}
         </View>
       </View>
