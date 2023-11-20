@@ -1054,7 +1054,7 @@ export const styles = StyleSheet.create({
   }, //투표기간
   VoteBefore_View1_host: {
     fontSize: h * 0.015,
-    marginLeft: w * 0.4,
+    marginLeft: w * 0.2,
     marginBottom: h * 0.03,
   }, //주최자
   VoteBefore_View1_row: {

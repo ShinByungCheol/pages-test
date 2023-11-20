@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -15,45 +15,29 @@ import { Alert } from 'react-native';
 
 export const VoteBefore = ({ navigation, route }) => {
   const {
+    category,
+    vote,
     userId,
     isLoggedIn,
     jwtToken,
     nickname,
     updateDM2,
   } = route.params;
-  const [title] = useState('투표 수행전 투표메인화면');
-  const [description, setDescription] = useState(
-    '본문내용이 여기에 들어갑니다.'
-  );
-  const [host] = useState('주최: 레이아웃 테스터');
-  const [comments, setComments] = useState([]);
 
-  const [pollOptions, setPollOptions] = useState([
-    {
-      id: 1,
-      text: '투표항목1',
-      votes: 0,
-      isSelected: false,
-    },
-    {
-      id: 2,
-      text: '투표항목2',
-      votes: 0,
-      isSelected: false,
-    },
-    {
-      id: 3,
-      text: '투표항목3',
-      votes: 0,
-      isSelected: false,
-    },
-    {
-      id: 4,
-      text: '투표항목4',
-      votes: 0,
-      isSelected: false,
-    },
-  ]);
+  const [pollOptions, setPollOptions] = useState([]);
+
+  useEffect(() => {
+    // Assuming vote.choices is an array of choice objects received from the server
+    setPollOptions(
+      vote.choices.map((choice) => ({
+        id: choice.id,
+        text: choice.text,
+        votes: 0,
+        isSelected: false,
+      }))
+    );
+  }, [vote]);
+
   const [heartType, setHeartType] = useState('empty');
 
   const handleHeartClick = () => {
@@ -79,9 +63,6 @@ export const VoteBefore = ({ navigation, route }) => {
       Alert.alert('알림', '투표항목을 선택해주세요');
       return;
     }
-    {
-      /* 아무것도 투표안하고 버튼클릭시 경고문구*/
-    }
 
     const updatedOptions = pollOptions.map((option) =>
       option.isSelected
@@ -100,15 +81,8 @@ export const VoteBefore = ({ navigation, route }) => {
       updateDM2,
     });
   };
+
   const home = () => {
-    console.log(
-      '다시 home으로 ',
-      userId,
-      isLoggedIn,
-      jwtToken,
-      nickname,
-      updateDM2
-    );
     navigation.navigate('HomeScreen', {
       userId,
       isLoggedIn,
@@ -117,6 +91,7 @@ export const VoteBefore = ({ navigation, route }) => {
       updateDM2,
     });
   };
+
   return (
     <View style={styles.status_x}>
       <ScrollView>
@@ -165,18 +140,18 @@ export const VoteBefore = ({ navigation, route }) => {
         <View style={styles.VoteBefore_View1_All}>
           <View>
             <Text style={styles.VoteBefore_View1_title}>
-              {title}
+              {vote.title}
             </Text>
             {/* 투표제목 */}
           </View>
 
           <View style={styles.text_box1}>
             <Text style={styles.VoteBefore_View1_day}>
-              투표 기간 설정:
+              투표 기간 설정: {vote.createdAt}
             </Text>
 
             <Text style={styles.VoteBefore_View1_host}>
-              {host}
+              주최자 : {vote.createdBy}
             </Text>
           </View>
           {/* 투표기간,주최자 */}
@@ -185,7 +160,7 @@ export const VoteBefore = ({ navigation, route }) => {
           {/* 본문경계선 */}
 
           <Text style={styles.VoteBefore_View2_content}>
-            {description}
+            {vote.question}
           </Text>
           {/* 본문내용 표시 */}
 

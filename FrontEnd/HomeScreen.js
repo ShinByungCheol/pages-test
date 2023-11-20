@@ -12,6 +12,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios';
+import moment from 'moment';
 
 // 페이지 인디케이터(점)
 export function PageIndicator({ currentPage, totalPages }) {
@@ -188,7 +189,6 @@ export const HomeScreen = ({ navigation, route }) => {
         );
         if (response.status === 200) {
           const votesData = response.data;
-
           console.log(
             JSON.stringify(response.data, null, 2)
           );
@@ -196,19 +196,20 @@ export const HomeScreen = ({ navigation, route }) => {
             const formattedVotes = votesData.map(
               (vote) => ({
                 id: vote.id,
+                createdBy: vote.createdBy,
+                createdAt: moment
+                  .utc(vote.createdAt)
+                  .format('YYYY-MM-DD HH:mm'),
                 category: vote.category,
                 title: vote.title,
-                user: vote.user,
                 question: vote.question,
-                choices: (vote.choiceDtos || []).map(
-                  (choice) => ({
-                    id: choice.id,
-                    text: choice.text,
-                  })
-                ),
+                choices: vote.choices.map((choice) => ({
+                  id: choice.id,
+                  text: choice.text,
+                })),
               })
             );
-
+            console.log(formattedVotes);
             // Set votes only if there is data
             if (formattedVotes.length > 0) {
               setVotes(formattedVotes);
@@ -518,7 +519,7 @@ export const HomeScreen = ({ navigation, route }) => {
                       // Navigate to 'VoteBefore' screen
                       navigation.navigate('VoteBefore', {
                         category,
-                        vote: selectedVote,
+                        vote: firstMatchingVote,
                         isLoggedIn,
                         userId,
                         jwtToken,
