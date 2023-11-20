@@ -54,6 +54,7 @@ export const AllCategoryScreen = ({
     });
   };
 
+  // 투표 게시글 받아오기
   useEffect(() => {
     const voteData = async () => {
       try {
@@ -67,21 +68,33 @@ export const AllCategoryScreen = ({
         );
 
         if (response.status === 200) {
-          // Assuming the response data is an array of messages
           const votesData = response.data;
-          console.log('투표 데이터', response.data);
 
-          // Extracting and mapping relevant data from the response
-          const formattedVotes = votesData.map((vote) => ({
-            category: vote.category,
-            title: vote.createdBy,
-            user: vote.user,
-            question: vote.title,
-          }));
+          if (Array.isArray(votesData)) {
+            const formattedVotes = votesData.map(
+              (vote) => ({
+                category: vote.category,
+                title: vote.title,
+                user: vote.user,
+                question: vote.question,
+                choices: (vote.choiceDtos || []).map(
+                  (choice) => ({
+                    id: choice.id,
+                    text: choice.text,
+                  })
+                ),
+              })
+            );
 
-          // Set votes only if there is data
-          if (formattedVotes.length > 0) {
-            setVotes(formattedVotes);
+            // Set votes only if there is data
+            if (formattedVotes.length > 0) {
+              setVotes(formattedVotes);
+            }
+          } else {
+            console.error(
+              'Invalid votes data format:',
+              votesData
+            );
           }
         } else {
           console.error(
@@ -93,6 +106,7 @@ export const AllCategoryScreen = ({
         console.error('Error fetching votes:', error);
       }
     };
+
     // Call the fetchData function to fetch votes when the component mounts
     voteData();
   }, []);
