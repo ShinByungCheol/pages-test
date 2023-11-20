@@ -146,7 +146,9 @@ export const HomeScreen = ({ navigation, route }) => {
         if (response.status === 200) {
           // Assuming the response data is an array of messages
           const messagesData = response.data;
-          console.log('받은 쪽지 데이터', response.data);
+          console.log(
+            JSON.stringify(response.data, null, 2)
+          );
           // Extracting and mapping relevant data from the response
           const formattedMessages = messagesData.map(
             (message) => ({
@@ -187,25 +189,33 @@ export const HomeScreen = ({ navigation, route }) => {
         );
 
         if (response.status === 200) {
-          // Assuming the response data is an array of messages
           const votesData = response.data;
-          console.log(
-            JSON.stringify(response.data, null, 2)
-          );
-          const formattedVotes = votesData.map((vote) => ({
-            category: vote.category,
-            title: vote.title,
-            user: vote.user,
-            question: vote.question,
-            choices: vote.choiceDtos.map((choice) => ({
-              id: choice.id,
-              text: choice.text,
-            })),
-          }));
-          console.log('Formatted Votes:', formattedVotes);
-          // Set votes only if there is data
-          if (formattedVotes.length > 0) {
-            setVotes(formattedVotes);
+
+          if (Array.isArray(votesData)) {
+            const formattedVotes = votesData.map(
+              (vote) => ({
+                category: vote.category,
+                title: vote.title,
+                user: vote.user,
+                question: vote.question,
+                choices: (vote.choiceDtos || []).map(
+                  (choice) => ({
+                    id: choice.id,
+                    text: choice.text,
+                  })
+                ),
+              })
+            );
+
+            // Set votes only if there is data
+            if (formattedVotes.length > 0) {
+              setVotes(formattedVotes);
+            }
+          } else {
+            console.error(
+              'Invalid votes data format:',
+              votesData
+            );
           }
         } else {
           console.error(
@@ -217,6 +227,7 @@ export const HomeScreen = ({ navigation, route }) => {
         console.error('Error fetching votes:', error);
       }
     };
+
     // Call the fetchData function to fetch votes when the component mounts
     voteData();
   }, [updateDM]);
