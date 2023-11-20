@@ -170,7 +170,6 @@ export const HomeScreen = ({ navigation, route }) => {
         console.error('Error fetching messages:', error);
       }
     };
-
     // Call the fetchData function to fetch messages when the component mounts
     fetchData();
   }, [nickname]);
@@ -191,9 +190,13 @@ export const HomeScreen = ({ navigation, route }) => {
         if (response.status === 200) {
           const votesData = response.data;
 
+          console.log(
+            JSON.stringify(response.data, null, 2)
+          );
           if (Array.isArray(votesData)) {
             const formattedVotes = votesData.map(
               (vote) => ({
+                id: vote.id,
                 category: vote.category,
                 title: vote.title,
                 user: vote.user,
@@ -475,14 +478,11 @@ export const HomeScreen = ({ navigation, route }) => {
             </View>
             <View style={styles.category_sub_title_box}>
               {categories.map((category) => {
-                // votes에서 현재 카테고리에 해당하는 모든 투표 항목 가져오기
                 const matchingVotes = votes.filter(
                   (vote) => vote.category === category
                 );
-                // 이미 나타난 카테고리의 title을 저장할 Set
                 const shownTitles = new Set();
-                // 중복을 방지하면서 나타낼 title을 찾기
-                const firstMatchingTitle =
+                const firstMatchingVote =
                   matchingVotes.find((vote) => {
                     if (!shownTitles.has(vote.title)) {
                       shownTitles.add(vote.title);
@@ -490,25 +490,43 @@ export const HomeScreen = ({ navigation, route }) => {
                     }
                     return false;
                   });
-                // 실제 렌더링
+
                 return (
                   <TouchableOpacity
                     key={`${category}-${
-                      firstMatchingTitle?.title || nickname
+                      firstMatchingVote?.title || nickname
                     }`}
-                    onPress={() =>
+                    onPress={() => {
+                      const selectedVote =
+                        formattedVotes.find(
+                          (vote) =>
+                            vote.id ===
+                            firstMatchingVote?.id
+                        );
+
+                      // Log relevant information for debugging
+                      console.log(
+                        'firstMatchingVote:',
+                        firstMatchingVote
+                      );
+
+                      // Log the selectedVote to the console
+                      console.log(
+                        'Selected Vote:',
+                        selectedVote
+                      );
+
+                      // Navigate to 'VoteBefore' screen
                       navigation.navigate('VoteBefore', {
                         category,
-                        title:
-                          firstMatchingTitle?.title ||
-                          nickname,
+                        vote: selectedVote,
                         isLoggedIn,
                         userId,
                         jwtToken,
                         nickname,
                         updateDM2,
-                      })
-                    }
+                      });
+                    }}
                   >
                     <View style={styles.category_sub_box}>
                       <Text
@@ -516,7 +534,7 @@ export const HomeScreen = ({ navigation, route }) => {
                           styles.category_sub_title_text
                         }
                       >
-                        {firstMatchingTitle?.title ||
+                        {firstMatchingVote?.title ||
                           nickname}
                       </Text>
                     </View>

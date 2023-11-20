@@ -8,7 +8,8 @@ import {
 import { FontAwesome } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-import { styles, SCREEN_WIDTH } from './styles';
+import { styles } from './styles';
+import axios from 'axios';
 
 export const SearchScreen = ({ navigation, route }) => {
   const {
@@ -18,6 +19,42 @@ export const SearchScreen = ({ navigation, route }) => {
     nickname,
     updateDM2,
   } = route.params;
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/polls/search?title=` +
+          searchQuery,
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
+      console.log(searchQuery);
+      if (response.status === 200) {
+        console.log(response.data);
+      } else {
+        console.error(
+          'Failed to fetch messages:',
+          response.data
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
+
+  const handleSearch = () => {
+    fetchData();
+  };
+
+  useEffect(() => {
+    // Call the fetchData function to fetch messages when the component mounts
+    fetchData();
+  }, [searchQuery]);
 
   return (
     <View style={styles.main_page}>
@@ -51,8 +88,10 @@ export const SearchScreen = ({ navigation, route }) => {
         <TextInput
           style={styles.search_input_box}
           placeholder="검색 단어를 입력해주세요!"
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
         />
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleSearch}>
           <Feather
             style={styles.search_btn}
             name="search"
