@@ -12,8 +12,9 @@ import { DMboxScreen } from './DMboxScreen'; // 쪽지함 임시 페이지 -> �
 import { DMScreen } from './DMScreen'; // 쪽지 내용 임시 페이지 -> 승빈이가 맡음
 import { DMSendScreen } from './DMSendScreen'; // 쪽지 보내기 페이지 -> 승빈이가 맡음
 import { DMAutoSendScreen } from './DMAutoSendScreen'; // 쪽지 보내기 페이지 -> 승빈이가 맡음
-import { ProfileScreen } from './ProfileScreen'; // 유저 프로필 -> 진짜
-import { ProfileUpdateScreen } from './ProfileUpdateScreen'; // 유저 업데이트 프로필 -> 진짜
+import { ProfileScreen } from './ProfileScreen'; // 유저 프로필 페이지 -> 진짜
+import { UserAuthenticationScreen } from './UserAuthenticationScreen'; // 유저 인증 페이지
+import { ProfileUpdateScreen } from './ProfileUpdateScreen'; // 유저 프로필 업데이트 페이지 -> 진짜
 import { VoteBefore } from './VoteBefore'; // 투표 수행하기 전에 보여주는 페이지
 import { VoteAfter } from './VoteAfter'; // 투표 수행하고 나서 보여주는 페이지
 import { VoteMake } from './VoteMake'; // 투표 생성페이지
@@ -81,6 +82,14 @@ export default function App() {
           component={ProfileScreen}
           options={{
             headerShown: false,
+            gestureEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="UserAuthenticationScreen"
+          component={UserAuthenticationScreen}
+          options={{
+            headerShown: false, // 화면 상단에 헤더를 숨김
             gestureEnabled: false,
           }}
         />

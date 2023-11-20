@@ -841,6 +841,14 @@ export const styles = StyleSheet.create({
     color: '#a69c86',
     fontSize: 13,
   },
+  // UserAuthenticationScreen
+  text_container: {
+    height: h * 0.2,
+    marginTop: h * 0.1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   // Vote 관련 페이지///////////////////////////////////////////////////////////////////////
   back_view12: {
     width: w * 0.1,
