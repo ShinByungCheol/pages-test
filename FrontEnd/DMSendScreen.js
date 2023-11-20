@@ -31,6 +31,7 @@ export const DMSendScreen = ({ navigation, route }) => {
       receiver: recipientId,
       content: messageContent,
     };
+
     try {
       const response = await axios.post(
         'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app//message/send',

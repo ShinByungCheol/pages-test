@@ -661,8 +661,9 @@ export const styles = StyleSheet.create({
     marginLeft: w * 0.1,
     marginTop: h * 0.02,
     width: w * 0.8,
-    height: h * 0.09,
+    height: h * 0.9,
   },
+  serach_result_view3: { marginBottom: h * 0.02 },
   serach_result_title: {
     fontSize: h * 0.02,
     fontWeight: 'bold',
@@ -679,7 +680,7 @@ export const styles = StyleSheet.create({
   },
   search_result_row: {
     flexDirection: 'row',
-    marginTop: h * 0.01,
+    marginTop: h * 0.001,
     marginLeft: w * 0.005,
   },
   // 프로필 페이지

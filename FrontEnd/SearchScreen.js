@@ -4,6 +4,8 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  ScrollView,
+  Alert,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
@@ -21,6 +23,7 @@ export const SearchScreen = ({ navigation, route }) => {
   } = route.params;
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -33,9 +36,9 @@ export const SearchScreen = ({ navigation, route }) => {
           },
         }
       );
-      console.log(searchQuery);
+
       if (response.status === 200) {
-        console.log(response.data);
+        setSearchResults(response.data);
       } else {
         console.error(
           'Failed to fetch messages:',
@@ -48,13 +51,19 @@ export const SearchScreen = ({ navigation, route }) => {
   };
 
   const handleSearch = () => {
-    fetchData();
+    // Check if the searchQuery has at least two characters before making the search
+    if (searchQuery.length >= 2) {
+      fetchData();
+    } else {
+      // Show an alert if the searchQuery is less than two characters
+      Alert.alert(
+        '검색 오류',
+        '검색어는 최소 2글자 이상이어야 합니다.',
+        [{ text: '확인' }],
+        { cancelable: false }
+      );
+    }
   };
-
-  useEffect(() => {
-    // Call the fetchData function to fetch messages when the component mounts
-    fetchData();
-  }, [searchQuery]);
 
   return (
     <View style={styles.main_page}>
@@ -111,26 +120,44 @@ export const SearchScreen = ({ navigation, route }) => {
             검색결과
           </Text>
         </View>
-        <View style={styles.serach_result_view2}>
-          <Text style={styles.serach_result_title}>
-            검색 결과로 나타나는 게시글 제목
-          </Text>
-          <Text style={styles.serach_result_sub}>
-            본문은 아래에 동일한 라인으로 폰트사이즘나 축소
-            최대 두줄 가능함, 두 줄 이상일 시 짤려서
-            나타나도록 할 예정
-          </Text>
-          <View style={styles.search_result_row}>
-            <AntDesign
-              name="like2"
-              size={20}
-              color="#007BFF"
-            />
-            <Text style={styles.serach_result_like}>
-              좋아요 수 | n시간/ n분/ n일 전
-            </Text>
-          </View>
-        </View>
+        {searchResults.length > 0 && (
+          <ScrollView>
+            <View style={styles.serach_result_view2}>
+              {searchResults.map((result) => (
+                <View
+                  key={result.id}
+                  style={styles.serach_result_view3}
+                >
+                  <Text style={styles.serach_result_title}>
+                    {result.title}
+                  </Text>
+                  <Text style={styles.serach_result_sub}>
+                    {result.question}
+                  </Text>
+
+                  <View style={styles.search_result_row}>
+                    <AntDesign
+                      name="like2"
+                      size={20}
+                      color="#007BFF"
+                    />
+                    <Text style={styles.serach_result_like}>
+                      좋아요 수 | n시간/ n분/ n일 전
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </ScrollView>
+        )}
+        {searchResults.length === 0 &&
+          searchQuery.trim() !== '' && (
+            <View style={styles.serach_result_view2}>
+              <Text
+                style={styles.serach_result_title}
+              ></Text>
+            </View>
+          )}
       </View>
     </View>
   );

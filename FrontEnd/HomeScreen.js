@@ -186,7 +186,6 @@ export const HomeScreen = ({ navigation, route }) => {
             },
           }
         );
-
         if (response.status === 200) {
           const votesData = response.data;
 
