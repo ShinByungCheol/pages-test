@@ -71,24 +71,6 @@ export const LoginScreen = ({ navigation }) => {
   };
   return (
     <View style={styles.main_page}>
-      <View style={styles.main_Row}>
-        {/* <View style={styles.back_view}>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('HomeScreen')
-            }
-          >
-            <AntDesign
-              name="arrowleft"
-              size={24}
-              color="black"
-            />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.back_title_view}>
-          <Text style={styles.back_text}>로그인</Text>
-        </View> */}
-      </View>
       <View style={styles.login_page_view}>
         <Text style={styles.login_title_text}>
           투표는 투기장

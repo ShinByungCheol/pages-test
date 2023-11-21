@@ -9,7 +9,7 @@ import { styles } from './styles';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import moment from 'moment';
 export const AllCategoryScreen = ({
   navigation,
   route,
@@ -75,16 +75,19 @@ export const AllCategoryScreen = ({
           if (Array.isArray(votesData)) {
             const formattedVotes = votesData.map(
               (vote) => ({
+                id: vote.id,
+                createdBy: vote.createdBy,
+                createdAt: moment
+                  .utc(vote.createdAt)
+                  .format('YYYY-MM-DD HH:mm'),
                 category: vote.category,
                 title: vote.title,
-                user: vote.user,
                 question: vote.question,
-                choices: (vote.choiceDtos || []).map(
-                  (choice) => ({
-                    id: choice.id,
-                    text: choice.text,
-                  })
-                ),
+                likesCount: vote.likesCount,
+                choices: vote.choices.map((choice) => ({
+                  id: choice.id,
+                  text: choice.text,
+                })),
               })
             );
 

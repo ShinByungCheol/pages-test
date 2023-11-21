@@ -54,9 +54,7 @@ export const HomeScreen = ({ navigation, route }) => {
     nickname,
     updateDM2,
   } = route.params;
-  console.log('Received updateDM2:', updateDM2);
-  console.log('t:', jwtToken);
-  console.log('n:', nickname);
+
   //인디케이터
   const [updateDM, setUpdateDM] = useState(updateDM2);
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,7 +97,7 @@ export const HomeScreen = ({ navigation, route }) => {
         '서버로부터 받은 메시지1 :',
         receivedMessage
       );
-      console.log('u1 :', updateDM);
+
       // 메시지를 화면에 출력
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -109,13 +107,11 @@ export const HomeScreen = ({ navigation, route }) => {
       const isNewMessage = receivedMessage.includes(
         '새로운 쪽지가 도착했습니다.'
       );
-      console.log('isNewMessage:', isNewMessage);
 
       if (isNewMessage) {
         // Increment updateDM by 1
         setUpdateDM(updateDM + 1);
       }
-      console.log('u2 :', updateDM);
 
       // 여긴 숫자 구하는거
       //숫자를 추출하여 상태로 저장
@@ -203,6 +199,7 @@ export const HomeScreen = ({ navigation, route }) => {
                 category: vote.category,
                 title: vote.title,
                 question: vote.question,
+                likesCount: vote.likesCount,
                 choices: vote.choices.map((choice) => ({
                   id: choice.id,
                   text: choice.text,
@@ -266,19 +263,6 @@ export const HomeScreen = ({ navigation, route }) => {
       console.log('jwtToken:', jwtToken);
     }
   };
-  // 버튼을 누를 때 실행되는 함수
-  const handleToggleLike = () => {
-    if (isLiked) {
-      // 이미 좋아요한 상태라면 -1
-      setCount(count - 1);
-    } else {
-      // 아직 좋아요하지 않은 상태라면 +1
-      setCount(count + 1);
-    }
-
-    // 버튼 상태 토글
-    setIsLiked(!isLiked);
-  };
   const renderPostPress = ({ category, title }) => {
     navigation.navigate('VoteBefore', {
       category,
@@ -315,13 +299,13 @@ export const HomeScreen = ({ navigation, route }) => {
                   {title}
                 </Text>
               </View>
-              <TouchableOpacity onPress={handleToggleLike}>
-                <Image
-                  source={require('./assets/good.png')}
-                  style={styles.goodbtn}
-                />
-                <Text style={styles.goodnum}>{count}</Text>
-              </TouchableOpacity>
+              <Image
+                source={require('./assets/good.png')}
+                style={styles.goodbtn}
+              />
+              <Text style={styles.goodnum}>
+                {likeCounts}
+              </Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -393,8 +377,14 @@ export const HomeScreen = ({ navigation, route }) => {
             contentContainerStyle={styles.scrollViewContent}
             onScroll={handleScroll}
           >
-            {votes.map(({ category, title }, index) =>
-              renderPost(category, title, index)
+            {votes.map(
+              ({ category, title, likesCount }, index) =>
+                renderPost(
+                  category,
+                  title,
+                  likesCount,
+                  index
+                )
             )}
           </ScrollView>
           <PageIndicator

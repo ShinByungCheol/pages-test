@@ -172,16 +172,37 @@ export const VoteAfter = ({ navigation, route }) => {
 
   const [heartType, setHeartType] = useState('empty');
 
-  const handleHeartClick = () => {
+  const handleHeartClick = async () => {
     setHeartType((prev) =>
       prev === 'empty' ? 'filled' : 'empty'
     );
+    const data = {
+      pollId: vote.id,
+      nickname: nickname,
+    };
+
+    try {
+      const response = await axios.post(
+        'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/polls/likes',
+        data,
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log(response.data);
+      } else {
+        console.error('Failed to likes:', response.data);
+      }
+    } catch (error) {
+      console.error('게시글 좋아요 :', error);
+    }
+
     console.log('userVotes : ', userVotes);
     console.log('vote : ', vote);
   };
-  {
-    /* 하트 기능 핸들러 */
-  }
 
   const getCurrentTime = () => {
     const now = new Date();
@@ -238,7 +259,10 @@ export const VoteAfter = ({ navigation, route }) => {
     setReplyText('');
     setShowReplyInput(true);
   };
-
+  const handleGoBack = () => {
+    // navigation.goBack()을 호출하여 이전 화면으로 이동
+    navigation.goBack();
+  };
   const [showReplyInput, setShowReplyInput] =
     useState(false);
   const [replyText, setReplyText] = useState('');
@@ -279,17 +303,7 @@ export const VoteAfter = ({ navigation, route }) => {
       <ScrollView>
         <View style={styles.main_Row12}>
           <View style={styles.back_view12}>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('HomeScreen', {
-                  userId,
-                  isLoggedIn,
-                  jwtToken,
-                  nickname,
-                  updateDM2,
-                })
-              }
-            >
+            <TouchableOpacity onPress={handleGoBack}>
               <AntDesign
                 name="arrowleft"
                 size={24}

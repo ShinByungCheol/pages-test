@@ -93,15 +93,6 @@ export const VoteBefore = ({ navigation, route }) => {
       updateDM2,
     });
   };
-  const handleNavigateToVoteAfter = () => {
-    navigation.navigate('VoteAfter', {
-      userId,
-      isLoggedIn,
-      jwtToken,
-      nickname,
-      updateDM2,
-    });
-  };
 
   const home = () => {
     navigation.navigate('HomeScreen', {
@@ -112,12 +103,15 @@ export const VoteBefore = ({ navigation, route }) => {
       updateDM2,
     });
   };
-
+  const handleGoBack = () => {
+    // navigation.goBack()을 호출하여 이전 화면으로 이동
+    navigation.goBack();
+  };
   return (
     <View style={styles.status_x}>
       <View style={styles.main_Row12}>
         <View style={styles.back_view12}>
-          <TouchableOpacity onPress={home}>
+          <TouchableOpacity onPress={handleGoBack}>
             <AntDesign
               name="arrowleft"
               size={24}
@@ -127,21 +121,7 @@ export const VoteBefore = ({ navigation, route }) => {
         </View>
         <View style={styles.btns}>
           <TouchableOpacity
-            onPress={handleHeartClick}
-            style={styles.VoteBefore_View1_heart}
-          >
-            {heartType === 'empty' ? (
-              <Entypo
-                name="heart-outlined"
-                size={30}
-                color="black"
-              />
-            ) : (
-              <Entypo name="heart" size={30} color="red" />
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.VoteBefore_View1_share}
+            style={styles.VoteBefore_View1_share1}
           >
             <Entypo name="share" size={24} color="black" />
           </TouchableOpacity>

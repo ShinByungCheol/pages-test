@@ -2,6 +2,7 @@ import { Text, View, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { styles } from './styles';
 import React from 'react';
+import axios from 'axios';
 
 export const CategoryScreen = ({ navigation, route }) => {
   const {
@@ -16,6 +17,49 @@ export const CategoryScreen = ({ navigation, route }) => {
   const handleGoBack = () => {
     // navigation.goBack()을 호출하여 이전 화면으로 이동
     navigation.goBack();
+  };
+  const handleVotePress = async (vote) => {
+    try {
+      const response = await axios.get(
+        `https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes/ok/${nickname}`,
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const userVotes = response.data;
+
+        // Check if the user has voted for the selected poll
+        const hasVoted = userVotes.some(
+          (userVote) => userVote.pollId === vote.id
+        );
+        console.log(vote);
+        // Navigate to 'VoteBefore' or 'VoteAfter' based on the voting status
+        navigation.navigate(
+          hasVoted ? 'VoteAfter' : 'VoteBefore',
+          {
+            category,
+            vote,
+            isLoggedIn,
+            userId,
+            jwtToken,
+            nickname,
+            updateDM2,
+            userVotes, // You can pass userVotes if needed in 'VoteAfter'
+          }
+        );
+      } else {
+        console.error(
+          'Failed to fetch user votes:',
+          response.data
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching user votes:', error);
+    }
   };
   return (
     <View style={styles.main_page}>
@@ -40,16 +84,7 @@ export const CategoryScreen = ({ navigation, route }) => {
         {filteredVotes.map((vote, index) => (
           <TouchableOpacity
             key={index}
-            onPress={() =>
-              navigation.navigate('VoteBefore', {
-                category,
-                isLoggedIn,
-                userId,
-                jwtToken,
-                nickname,
-                updateDM2,
-              })
-            }
+            onPress={() => handleVotePress(vote)}
           >
             <View style={styles.category_post_box}>
               <View style={styles.category_post_text}>

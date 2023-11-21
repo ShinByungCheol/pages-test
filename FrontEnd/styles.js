@@ -1039,6 +1039,10 @@ export const styles = StyleSheet.create({
     marginLeft: w * 0.05,
     marginTop: h * 0.003,
   }, //공유버튼
+  VoteBefore_View1_share1: {
+    marginLeft: w * 0.55,
+    marginTop: h * 0.003,
+  },
   VoteBefore_View1_heart: {
     marginLeft: w * 0.55,
   }, //좋아요버튼
