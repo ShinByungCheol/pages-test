@@ -207,6 +207,7 @@ export const HomeScreen = ({ navigation, route }) => {
               })
             );
             console.log(formattedVotes);
+
             // Set votes only if there is data
             if (formattedVotes.length > 0) {
               setVotes(formattedVotes);
@@ -227,9 +228,10 @@ export const HomeScreen = ({ navigation, route }) => {
         console.error('투표 데이터 가져오기:', error);
       }
     };
-    // Call the fetchData function to fetch votes when the component mounts
+
+    // Call the voteData function to fetch votes when the component mounts
     voteData();
-  }, [updateDM]);
+  }, [nickname, jwtToken, votes]);
 
   const handleProfilePress = () => {
     if (isLoggedIn) {
@@ -274,7 +276,12 @@ export const HomeScreen = ({ navigation, route }) => {
       updateDM2,
     });
   };
-  const renderPost = (category, title, index) => {
+  const renderPost = (
+    category,
+    title,
+    likeCounts,
+    index
+  ) => {
     const startIndex = 1;
     const endIndex = 3;
 
@@ -299,13 +306,15 @@ export const HomeScreen = ({ navigation, route }) => {
                   {title}
                 </Text>
               </View>
-              <Image
-                source={require('./assets/good.png')}
-                style={styles.goodbtn}
-              />
-              <Text style={styles.goodnum}>
-                {likeCounts}
-              </Text>
+              <View style={styles.boxinbox2}>
+                <Image
+                  source={require('./assets/good.png')}
+                  style={styles.goodbtn}
+                />
+                <Text style={styles.goodnum}>
+                  {likeCounts}
+                </Text>
+              </View>
             </View>
           </View>
         </TouchableOpacity>
@@ -332,6 +341,52 @@ export const HomeScreen = ({ navigation, route }) => {
       votes,
     });
   };
+  const abc = async () => {
+    try {
+      const response = await axios.get(
+        'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes/ok/' +
+          nickname,
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const userVotes = response.data;
+
+        // Check if the user has voted for the selected poll
+        const hasVoted = userVotes.some(
+          (userVote) =>
+            userVote.pollId === firstMatchingVote?.id
+        );
+        console.log(hasVoted);
+        // Navigate to 'VoteBefore' or 'VoteAfter' based on the voting status
+        navigation.navigate(
+          hasVoted ? 'VoteAfter' : 'VoteBefore',
+          {
+            category,
+            vote: firstMatchingVote,
+            isLoggedIn,
+            userId,
+            jwtToken,
+            nickname,
+            updateDM2: updateDM + 1,
+            userVotes, // You can pass userVotes if needed in 'VoteAfter'
+          }
+        );
+      } else {
+        console.error(
+          'Failed to fetch user votes:',
+          response.data
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching user votes:', error);
+    }
+  };
+
   return (
     <View>
       <ScrollView vertical={true}>
@@ -377,14 +432,8 @@ export const HomeScreen = ({ navigation, route }) => {
             contentContainerStyle={styles.scrollViewContent}
             onScroll={handleScroll}
           >
-            {votes.map(
-              ({ category, title, likesCount }, index) =>
-                renderPost(
-                  category,
-                  title,
-                  likesCount,
-                  index
-                )
+            {votes.map(({ category, title }, index) =>
+              renderPost(category, title, index)
             )}
           </ScrollView>
           <PageIndicator
@@ -486,57 +535,7 @@ export const HomeScreen = ({ navigation, route }) => {
                     key={`${category}-${
                       firstMatchingVote?.title || nickname
                     }`}
-                    onPress={async () => {
-                      try {
-                        const response = await axios.get(
-                          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes/ok/' +
-                            nickname,
-                          {
-                            headers: {
-                              'AUTH-TOKEN': jwtToken,
-                            },
-                          }
-                        );
-
-                        if (response.status === 200) {
-                          const userVotes = response.data;
-
-                          // Check if the user has voted for the selected poll
-                          const hasVoted = userVotes.some(
-                            (userVote) =>
-                              userVote.pollId ===
-                              firstMatchingVote?.id
-                          );
-                          console.log(hasVoted);
-                          // Navigate to 'VoteBefore' or 'VoteAfter' based on the voting status
-                          navigation.navigate(
-                            hasVoted
-                              ? 'VoteAfter'
-                              : 'VoteBefore',
-                            {
-                              category,
-                              vote: firstMatchingVote,
-                              isLoggedIn,
-                              userId,
-                              jwtToken,
-                              nickname,
-                              updateDM2: updateDM + 1,
-                              userVotes, // You can pass userVotes if needed in 'VoteAfter'
-                            }
-                          );
-                        } else {
-                          console.error(
-                            'Failed to fetch user votes:',
-                            response.data
-                          );
-                        }
-                      } catch (error) {
-                        console.error(
-                          'Error fetching user votes:',
-                          error
-                        );
-                      }
-                    }}
+                    onPress={abc}
                   >
                     <View style={styles.category_sub_box}>
                       <Text
@@ -544,8 +543,7 @@ export const HomeScreen = ({ navigation, route }) => {
                           styles.category_sub_title_text
                         }
                       >
-                        {firstMatchingVote?.title ||
-                          nickname}
+                        {firstMatchingVote?.title || ''}
                       </Text>
                     </View>
                   </TouchableOpacity>

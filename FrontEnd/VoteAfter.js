@@ -180,7 +180,7 @@ export const VoteAfter = ({ navigation, route }) => {
       pollId: vote.id,
       nickname: nickname,
     };
-
+    console.log(data);
     try {
       const response = await axios.post(
         'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/polls/likes',
@@ -261,7 +261,7 @@ export const VoteAfter = ({ navigation, route }) => {
   };
   const handleGoBack = () => {
     // navigation.goBack()을 호출하여 이전 화면으로 이동
-    navigation.goBack();
+    navigation.goBack({});
   };
   const [showReplyInput, setShowReplyInput] =
     useState(false);

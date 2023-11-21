@@ -1040,7 +1040,7 @@ export const styles = StyleSheet.create({
     marginTop: h * 0.003,
   }, //공유버튼
   VoteBefore_View1_share1: {
-    marginLeft: w * 0.55,
+    marginLeft: w * 0.63,
     marginTop: h * 0.003,
   },
   VoteBefore_View1_heart: {
@@ -1166,12 +1166,12 @@ export const styles = StyleSheet.create({
     height: h * 0.04,
     borderRadius: w * 0.02,
     paddingLeft: w * 0.02,
-    width: w * 0.85,
+    width: w * 0.75,
     marginLeft: w * 0.02,
     marginBottom: h * 0.05,
   }, //댓글입력칸 텍스트
   VoteAfter_View3_textinput: {
-    marginLeft: w * 0.9,
+    marginLeft: w * 0.8,
     marginTop: -h * 0.083,
     marginBottom: h * 0.1,
   }, //댓글입력칸 위치
@@ -1211,7 +1211,7 @@ export const styles = StyleSheet.create({
     marginLeft: w * 0.025,
     marginTop: h * 0.02,
     marginBottom: w * 0.03,
-    width: w * 0.95,
+    width: w * 0.85,
     borderBottomColor: '#BDBDBD',
     borderBottomWidth: h * 0.0012,
   }, //댓글경계선
