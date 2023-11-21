@@ -168,12 +168,12 @@ export const HomeScreen = ({ navigation, route }) => {
           );
         }
       } catch (error) {
-        console.error('Error fetching messages:', error);
+        console.error('쪽지 데이터 가져오기:', error);
       }
     };
     // Call the fetchData function to fetch messages when the component mounts
     fetchData();
-  }, [nickname]);
+  }, [updateDM]);
 
   // 투표 게시글 받아오기
   useEffect(() => {
@@ -227,49 +227,12 @@ export const HomeScreen = ({ navigation, route }) => {
           );
         }
       } catch (error) {
-        console.error('Error fetching votes:', error);
+        console.error('투표 데이터 가져오기:', error);
       }
     };
-
     // Call the fetchData function to fetch votes when the component mounts
     voteData();
   }, [updateDM]);
-
-  // 투표 한거 받아오기
-  useEffect(() => {
-    const selectedvoteData = async () => {
-      try {
-        const response = await axios.get(
-          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes/ok/' +
-            nickname,
-          {
-            headers: {
-              'AUTH-TOKEN': jwtToken,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          const userVoteData = response.data;
-
-          console.log(
-            'pollID랑 choiceID 받기!',
-            response.data
-          );
-        } else {
-          console.error(' ㅋㅋ 실패:', response.data);
-        }
-      } catch (error) {
-        console.error(
-          '투표 한지 안한지 데이터 받기 실패:',
-          error,
-          nickname
-        );
-      }
-    };
-    // Call the fetchData function to fetch votes when the component mounts
-    selectedvoteData();
-  }, [updateDM || nickname]);
 
   const handleProfilePress = () => {
     if (isLoggedIn) {
@@ -382,6 +345,7 @@ export const HomeScreen = ({ navigation, route }) => {
       nickname,
       updateDM2,
       filteredVotes,
+      votes,
     });
   };
   return (
@@ -448,7 +412,7 @@ export const HomeScreen = ({ navigation, route }) => {
                   userId,
                   jwtToken,
                   nickname,
-                  updateDM2,
+                  updateDM2: updateDM2 + 1,
                   categories: [
                     '정치',
                     '경제',
@@ -532,36 +496,56 @@ export const HomeScreen = ({ navigation, route }) => {
                     key={`${category}-${
                       firstMatchingVote?.title || nickname
                     }`}
-                    onPress={() => {
-                      const selectedVote =
-                        formattedVotes.find(
-                          (vote) =>
-                            vote.id ===
-                            firstMatchingVote?.id
+                    onPress={async () => {
+                      try {
+                        const response = await axios.get(
+                          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes/ok/' +
+                            nickname,
+                          {
+                            headers: {
+                              'AUTH-TOKEN': jwtToken,
+                            },
+                          }
                         );
 
-                      // Log relevant information for debugging
-                      console.log(
-                        'firstMatchingVote:',
-                        firstMatchingVote
-                      );
+                        if (response.status === 200) {
+                          const userVotes = response.data;
 
-                      // Log the selectedVote to the console
-                      console.log(
-                        'Selected Vote:',
-                        selectedVote
-                      );
-
-                      // Navigate to 'VoteBefore' screen
-                      navigation.navigate('VoteBefore', {
-                        category,
-                        vote: firstMatchingVote,
-                        isLoggedIn,
-                        userId,
-                        jwtToken,
-                        nickname,
-                        updateDM2,
-                      });
+                          // Check if the user has voted for the selected poll
+                          const hasVoted = userVotes.some(
+                            (userVote) =>
+                              userVote.pollId ===
+                              firstMatchingVote?.id
+                          );
+                          console.log(hasVoted);
+                          // Navigate to 'VoteBefore' or 'VoteAfter' based on the voting status
+                          navigation.navigate(
+                            hasVoted
+                              ? 'VoteAfter'
+                              : 'VoteBefore',
+                            {
+                              category,
+                              vote: firstMatchingVote,
+                              isLoggedIn,
+                              userId,
+                              jwtToken,
+                              nickname,
+                              updateDM2: updateDM + 1,
+                              userVotes, // You can pass userVotes if needed in 'VoteAfter'
+                            }
+                          );
+                        } else {
+                          console.error(
+                            'Failed to fetch user votes:',
+                            response.data
+                          );
+                        }
+                      } catch (error) {
+                        console.error(
+                          'Error fetching user votes:',
+                          error
+                        );
+                      }
                     }}
                   >
                     <View style={styles.category_sub_box}>
@@ -589,7 +573,7 @@ export const HomeScreen = ({ navigation, route }) => {
             userId,
             jwtToken,
             nickname,
-            updateDM2,
+            updateDM2: updateDM + 1,
           })
         }
       >

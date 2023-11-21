@@ -5,7 +5,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { styles, SCREEN_WIDTH } from './styles';
+import { styles } from './styles';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -23,7 +23,7 @@ export const AllCategoryScreen = ({
     updateDM2,
   } = route.params;
   // 이 부분에 상수 정의
-
+  const [updateDM, setUpdateDM] = useState(updateDM2);
   const titles = [
     '정치 이대로 괜찮을까?',
     '공기밥 가격 2000원 실화..?',
@@ -53,7 +53,9 @@ export const AllCategoryScreen = ({
       filteredVotes,
     });
   };
-
+  useEffect(() => {
+    setUpdateDM(updateDM2);
+  }, [updateDM2]);
   // 투표 게시글 받아오기
   useEffect(() => {
     const voteData = async () => {
@@ -109,7 +111,7 @@ export const AllCategoryScreen = ({
 
     // Call the fetchData function to fetch votes when the component mounts
     voteData();
-  }, []);
+  }, [updateDM]);
 
   return (
     <View>

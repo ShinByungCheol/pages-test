@@ -1091,6 +1091,18 @@ export const styles = StyleSheet.create({
     width: w * 0.86,
     marginLeft: w * 0.02,
   }, //투표항목버튼
+  VoteBefore_View2_Votebotton2: {
+    height: h * 0.055,
+    marginVertical: h * 0.01,
+    borderRadius: h * 0.015,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderColor: 'gray',
+    borderWidth: h * 0.001,
+    width: w * 0.86,
+    marginLeft: w * 0.02,
+  },
   VoteBefore_View2_Row: {
     flexDirection: 'row',
     marginLeft: w * 0.025,

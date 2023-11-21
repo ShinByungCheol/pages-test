@@ -24,49 +24,20 @@ export const VoteAfter = ({ navigation, route }) => {
     jwtToken,
     nickname,
     updateDM2,
+    userVotes,
   } = route.params;
 
   const [comments, setComments] = useState([]);
-
-  const [pollOptions, setPollOptions] = useState([
-    {
-      id: 1,
-      text: '투표항목1',
-      votes: 0,
-      isSelected: false,
-    },
-    {
-      id: 2,
-      text: '투표항목2',
-      votes: 0,
-      isSelected: false,
-    },
-    {
-      id: 3,
-      text: '투표항목3',
-      votes: 0,
-      isSelected: false,
-    },
-    {
-      id: 4,
-      text: '투표항목4',
-      votes: 0,
-      isSelected: false,
-    },
-  ]);
-  {
-    /* 투표항목 */
-  }
+  const [pollOptions, setPollOptions] = useState([]);
+  const newChoices = vote.choices.map((choice) => ({
+    id: choice.id,
+    text: choice.text,
+    votes: 0, // 초기 투표 수를 0으로 설정
+  }));
 
   const [commentText, setCommentText] = useState('');
-  {
-    /* 댓글관련 */
-  }
 
   const [commentError, setCommentError] = useState('');
-  {
-    /* 댓글에러관련 */
-  }
 
   const handleCommentSubmit = () => {
     if (commentText.trim() === '') {
@@ -205,32 +176,11 @@ export const VoteAfter = ({ navigation, route }) => {
     setHeartType((prev) =>
       prev === 'empty' ? 'filled' : 'empty'
     );
+    console.log('userVotes : ', userVotes);
+    console.log('vote : ', vote);
   };
   {
     /* 하트 기능 핸들러 */
-  }
-
-  const handleVoteOption = (optionId) => {
-    const updatedOptions = pollOptions.map((option) => ({
-      ...option,
-      isSelected: option.id === optionId,
-    }));
-    setPollOptions(updatedOptions);
-  };
-  {
-    /* 투표옵션 처리함수 */
-  }
-
-  const handleVote = () => {
-    const updatedOptions = pollOptions.map((option) =>
-      option.isSelected
-        ? { ...option, votes: option.votes + 1 }
-        : option
-    );
-    setPollOptions(updatedOptions);
-  };
-  {
-    /* 투표시 값 증가 로직 */
   }
 
   const getCurrentTime = () => {
@@ -331,13 +281,13 @@ export const VoteAfter = ({ navigation, route }) => {
           <View style={styles.back_view12}>
             <TouchableOpacity
               onPress={() =>
-                navigation.navigate('HomeScreen', [
+                navigation.navigate('HomeScreen', {
                   userId,
                   isLoggedIn,
                   jwtToken,
                   nickname,
                   updateDM2,
-                ])
+                })
               }
             >
               <AntDesign
@@ -395,8 +345,6 @@ export const VoteAfter = ({ navigation, route }) => {
               주최자 : {vote.createdBy}
             </Text>
           </View>
-          {/* 투표기간,주최자 */}
-          {/* 투표기간,주최자 */}
 
           <View style={styles.VoteBefore_View1_row}></View>
 
@@ -405,45 +353,35 @@ export const VoteAfter = ({ navigation, route }) => {
           </Text>
           {/* 본문내용 표시 */}
 
-          <View>
-            {pollOptions.map((option) => (
-              <TouchableOpacity
-                key={option.id}
+          {vote.choices.map((choice) => {
+            const isSelectedByUser = userVotes.some(
+              (userVote) => userVote.choiceId === choice.id
+            );
+
+            return (
+              <View
+                key={choice.id}
                 style={[
-                  styles.VoteBefore_View2_Votebotton,
+                  styles.VoteBefore_View2_Votebotton2,
                   {
-                    backgroundColor: option.isSelected
+                    backgroundColor: isSelectedByUser
                       ? '#4B89DC'
                       : 'transparent',
                   },
                 ]}
-                onPress={() => handleVoteOption(option.id)}
               >
-                {option.isSelected && (
-                  <Entypo
-                    name="check"
-                    size={20}
-                    color={
-                      option.isSelected
-                        ? 'white'
-                        : 'dimgray'
-                    }
-                    style={{ marginRight: 5 }}
-                  />
-                )}
                 <Text
                   style={{
-                    color: option.isSelected
+                    color: isSelectedByUser
                       ? 'white'
-                      : 'dimgray',
+                      : 'black',
                   }}
                 >
-                  {option.text}
+                  {choice.text}
                 </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {/* 투표항목 생성버튼 */}
+              </View>
+            );
+          })}
 
           <View style={styles.VoteBefore_View2_Row}></View>
           {/* 댓글창 경계선 */}
