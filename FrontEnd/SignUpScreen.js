@@ -94,6 +94,7 @@ export const SignUpScreen = ({ navigation }) => {
         console.error('회원가입 실패:', response.data);
       }
     } catch (error) {
+      Alert.alert('오류', '이미 동일한 ID가 있습니다.');
       console.error('회원가입 요청 오류:', error);
     } finally {
       // Use setTimeout to delay the reactivation of the button by 2 seconds (2000 milliseconds)

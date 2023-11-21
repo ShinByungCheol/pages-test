@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
   FlatList,
   Alert,
 } from 'react-native';

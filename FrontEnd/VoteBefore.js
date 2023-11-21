@@ -94,49 +94,41 @@ export const VoteBefore = ({ navigation, route }) => {
 
   return (
     <View style={styles.status_x}>
-      <ScrollView>
-        <View style={styles.main_Row12}>
-          <View style={styles.back_view12}>
-            <TouchableOpacity onPress={home}>
-              <AntDesign
-                name="arrowleft"
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.btns}>
-            <TouchableOpacity
-              onPress={handleHeartClick}
-              style={styles.VoteBefore_View1_heart}
-            >
-              {heartType === 'empty' ? (
-                <Entypo
-                  name="heart-outlined"
-                  size={30}
-                  color="black"
-                />
-              ) : (
-                <Entypo
-                  name="heart"
-                  size={30}
-                  color="red"
-                />
-              )}
-            </TouchableOpacity>
-            {/* 좋아요 버튼: 클릭시 색상변경 */}
-            <TouchableOpacity
-              style={styles.VoteBefore_View1_share}
-            >
-              <Entypo
-                name="share"
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
-            {/* 공유 버튼 */}
-          </View>
+      <View style={styles.main_Row12}>
+        <View style={styles.back_view12}>
+          <TouchableOpacity onPress={home}>
+            <AntDesign
+              name="arrowleft"
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
         </View>
+        <View style={styles.btns}>
+          <TouchableOpacity
+            onPress={handleHeartClick}
+            style={styles.VoteBefore_View1_heart}
+          >
+            {heartType === 'empty' ? (
+              <Entypo
+                name="heart-outlined"
+                size={30}
+                color="black"
+              />
+            ) : (
+              <Entypo name="heart" size={30} color="red" />
+            )}
+          </TouchableOpacity>
+          {/* 좋아요 버튼: 클릭시 색상변경 */}
+          <TouchableOpacity
+            style={styles.VoteBefore_View1_share}
+          >
+            <Entypo name="share" size={24} color="black" />
+          </TouchableOpacity>
+          {/* 공유 버튼 */}
+        </View>
+      </View>
+      <ScrollView>
         <View style={styles.VoteBefore_View1_All}>
           <View>
             <Text style={styles.VoteBefore_View1_title}>

@@ -1004,6 +1004,7 @@ export const styles = StyleSheet.create({
   VoteMake_View3_Makebotton: {
     backgroundColor: '#4B89DC',
     height: h * 0.06,
+    marginBottom: h * 0.3,
     marginVertical: h * 0.07,
     borderRadius: 20,
     justifyContent: 'center',
