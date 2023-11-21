@@ -14,31 +14,17 @@ import Constants from 'expo-constants';
 import { TextInput } from 'react-native';
 import { styles } from './styles';
 import { Alert } from 'react-native';
+import axios from 'axios'; // Import axios for HTTP requests
 
 export const VoteAfter = ({ navigation, route }) => {
   const {
+    vote,
     userId,
     isLoggedIn,
     jwtToken,
     nickname,
     updateDM2,
   } = route.params;
-  const [title] = useState('투표 수행후 투표메인화면');
-  {
-    /* 투표제목 */
-  }
-
-  const [description, setDescription] = useState(
-    '본문내용이 여기에 들어갑니다.'
-  );
-  {
-    /* 본문내용 */
-  }
-
-  const [host] = useState('주최: 레이아웃 테스터');
-  {
-    /* 투표제목 */
-  }
 
   const [comments, setComments] = useState([]);
 
@@ -87,9 +73,6 @@ export const VoteAfter = ({ navigation, route }) => {
       setCommentError('내용을 입력하세요.');
       return;
     }
-    {
-      /* 댓글내용이 없으면 뜨는 경고문구 */
-    }
 
     const newComment = {
       text: commentText,
@@ -105,16 +88,9 @@ export const VoteAfter = ({ navigation, route }) => {
     setCommentText('');
     setCommentError('');
   };
-  {
-    /* 댓글부가기능 */
-  }
 
   const Comment = ({ comment, index }) => {
     const commentTime = getCurrentTime();
-
-    const handleNavigateToVoteBefore = () => {
-      navigation.navigate('VoteBefore');
-    };
 
     return (
       <View key={index}>
@@ -199,7 +175,6 @@ export const VoteAfter = ({ navigation, route }) => {
           </View>
           {/* 공유버튼*/}
         </View>
-
         <View>
           {comment.replies &&
             comment.replies.length > 0 && (
@@ -407,30 +382,27 @@ export const VoteAfter = ({ navigation, route }) => {
         <View style={styles.VoteBefore_View1_All}>
           <View>
             <Text style={styles.VoteBefore_View1_title}>
-              {title}
+              {vote.title}
             </Text>
-            {/* 투표제목 */}
           </View>
+
           <View style={styles.text_box1}>
             <Text style={styles.VoteBefore_View1_day}>
-              투표 기간 설정:
+              투표 기간 설정: {vote.createdAt}
             </Text>
 
             <Text style={styles.VoteBefore_View1_host}>
-              {host}
+              주최자 : {vote.createdBy}
             </Text>
           </View>
           {/* 투표기간,주최자 */}
           {/* 투표기간,주최자 */}
 
           <View style={styles.VoteBefore_View1_row}></View>
-          {/* 본문경계선 */}
 
-          <View>
-            <Text style={styles.VoteBefore_View2_content}>
-              {description}
-            </Text>
-          </View>
+          <Text style={styles.VoteBefore_View2_content}>
+            {vote.question}
+          </Text>
           {/* 본문내용 표시 */}
 
           <View>

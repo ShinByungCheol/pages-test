@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
 } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
-import { Platform, StatusBar } from 'react-native';
-import Constants from 'expo-constants';
 import { styles } from './styles';
 import { Alert } from 'react-native';
+import axios from 'axios'; // Import axios for HTTP requests
 
 export const VoteBefore = ({ navigation, route }) => {
   const {
@@ -54,7 +51,7 @@ export const VoteBefore = ({ navigation, route }) => {
     setPollOptions(updatedOptions);
   };
 
-  const handleVote = () => {
+  const handleVote = async () => {
     const selectedOption = pollOptions.find(
       (option) => option.isSelected
     );
@@ -63,15 +60,39 @@ export const VoteBefore = ({ navigation, route }) => {
       Alert.alert('알림', '투표항목을 선택해주세요');
       return;
     }
-
-    const updatedOptions = pollOptions.map((option) =>
-      option.isSelected
-        ? { ...option, votes: option.votes + 1 }
-        : option
-    );
-    setPollOptions(updatedOptions);
+    // Send vote data to the server
+    const VoteDto = {
+      pollId: vote.id, // Replace with the actual poll ID
+      choiceId: selectedOption.id, // Replace with the actual choice ID
+      nickname: nickname,
+    };
+    console.log(VoteDto);
+    try {
+      const response = await axios.post(
+        'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes',
+        VoteDto,
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
+      if (response.status === 201) {
+        console.log('투표 성공:', response.data);
+      } else {
+        console.error('투표 실패:', response.data);
+      }
+    } catch (error) {
+      console.error('서버랑 오류 :', error);
+    }
+    navigation.navigate('HomeScreen', {
+      userId,
+      isLoggedIn,
+      jwtToken,
+      nickname,
+      updateDM2,
+    });
   };
-
   const handleNavigateToVoteAfter = () => {
     navigation.navigate('VoteAfter', {
       userId,
@@ -119,13 +140,11 @@ export const VoteBefore = ({ navigation, route }) => {
               <Entypo name="heart" size={30} color="red" />
             )}
           </TouchableOpacity>
-          {/* 좋아요 버튼: 클릭시 색상변경 */}
           <TouchableOpacity
             style={styles.VoteBefore_View1_share}
           >
             <Entypo name="share" size={24} color="black" />
           </TouchableOpacity>
-          {/* 공유 버튼 */}
         </View>
       </View>
       <ScrollView>
@@ -134,7 +153,6 @@ export const VoteBefore = ({ navigation, route }) => {
             <Text style={styles.VoteBefore_View1_title}>
               {vote.title}
             </Text>
-            {/* 투표제목 */}
           </View>
 
           <View style={styles.text_box1}>
@@ -146,15 +164,12 @@ export const VoteBefore = ({ navigation, route }) => {
               주최자 : {vote.createdBy}
             </Text>
           </View>
-          {/* 투표기간,주최자 */}
 
           <View style={styles.VoteBefore_View1_row}></View>
-          {/* 본문경계선 */}
 
           <Text style={styles.VoteBefore_View2_content}>
             {vote.question}
           </Text>
-          {/* 본문내용 표시 */}
 
           {pollOptions.map((option) => (
             <TouchableOpacity
@@ -190,35 +205,22 @@ export const VoteBefore = ({ navigation, route }) => {
               </Text>
             </TouchableOpacity>
           ))}
-          {/* 투표항목 생성버튼 */}
 
           <View style={styles.VoteBefore_View2_Row}></View>
-          {/* 댓글창 경계선 */}
 
           <Text style={styles.VoteBefore_View3_comment}>
             댓글 10
           </Text>
-          {/* 댓글수 표시 */}
 
-          <View style={styles.VoteBefore_View3_warning}>
-            {/* 회색바*/}
-
-            <Text
-              style={styles.VoteBefore_View3_warningtext}
-            >
-              투표에 참여한 사람만 댓글을 작성할 수
-              있습니다.
-            </Text>
-            {/* 회색바 문자열 */}
-          </View>
+          <View
+            style={styles.VoteBefore_View3_warning}
+          ></View>
 
           <View>
             <TouchableOpacity
-              onPress={handleNavigateToVoteAfter}
+              onPress={handleVote}
               style={styles.VoteBefore_View3_Votebotton}
             >
-              {/* 투표하기버튼 */}
-
               <Text
                 style={
                   styles.VoteBefore_View3_Votebottontext
@@ -227,7 +229,6 @@ export const VoteBefore = ({ navigation, route }) => {
                 선택한 버튼으로 투표하기
               </Text>
             </TouchableOpacity>
-            {/* 투표하기버튼 문자열 */}
           </View>
         </View>
       </ScrollView>
