@@ -235,6 +235,42 @@ export const HomeScreen = ({ navigation, route }) => {
     voteData();
   }, [updateDM]);
 
+  // 투표 한거 받아오기
+  useEffect(() => {
+    const selectedvoteData = async () => {
+      try {
+        const response = await axios.get(
+          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes/ok/' +
+            nickname,
+          {
+            headers: {
+              'AUTH-TOKEN': jwtToken,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          const userVoteData = response.data;
+
+          console.log(
+            'pollID랑 choiceID 받기!',
+            response.data
+          );
+        } else {
+          console.error(' ㅋㅋ 실패:', response.data);
+        }
+      } catch (error) {
+        console.error(
+          '투표 한지 안한지 데이터 받기 실패:',
+          error,
+          nickname
+        );
+      }
+    };
+    // Call the fetchData function to fetch votes when the component mounts
+    selectedvoteData();
+  }, [updateDM || nickname]);
+
   const handleProfilePress = () => {
     if (isLoggedIn) {
       // 이미 로그인된 상태에서 이미지 클릭 시 ProfileScreen으로 넘어가기
