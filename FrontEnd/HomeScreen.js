@@ -73,7 +73,7 @@ export const HomeScreen = ({ navigation, route }) => {
     setCurrentPage(page);
   };
 
-  const [count, setCount] = useState(0); // 초기값은 0
+  //const [count, setCount] = useState(0); // 초기값은 0
   const [isLiked, setIsLiked] = useState(false); // 버튼 상태 초기값은 좋아요하지 않음
 
   // 이 부분에 상수 정의
@@ -97,7 +97,7 @@ export const HomeScreen = ({ navigation, route }) => {
         '서버로부터 받은 메시지1 :',
         receivedMessage
       );
-
+      console.log('u1 :', updateDM);
       // 메시지를 화면에 출력
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -107,11 +107,13 @@ export const HomeScreen = ({ navigation, route }) => {
       const isNewMessage = receivedMessage.includes(
         '새로운 쪽지가 도착했습니다.'
       );
+      console.log('isNewMessage:', isNewMessage);
 
       if (isNewMessage) {
         // Increment updateDM by 1
         setUpdateDM(updateDM + 1);
       }
+      console.log('u2 :', updateDM);
 
       // 여긴 숫자 구하는거
       //숫자를 추출하여 상태로 저장
@@ -131,7 +133,7 @@ export const HomeScreen = ({ navigation, route }) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/message/read/all/' +
+          'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/message/read/all/' +
             nickname,
           {
             headers: {
@@ -170,59 +172,62 @@ export const HomeScreen = ({ navigation, route }) => {
     // Call the fetchData function to fetch messages when the component mounts
     fetchData();
   }, [updateDM]);
-
-  // 투표 게시글 받아오기
+  // 투표 데이터 받아오기
   useEffect(() => {
     const voteData = async () => {
       try {
-        const response = await axios.get(
-          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/polls/all',
-          {
-            headers: {
-              'AUTH-TOKEN': jwtToken,
-            },
-          }
-        );
-        if (response.status === 200) {
-          const votesData = response.data;
-          console.log(
-            JSON.stringify(response.data, null, 2)
+        if (votes.length >= 0) {
+          const response = await axios.get(
+            'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/polls/all',
+            {
+              headers: {
+                'AUTH-TOKEN': jwtToken,
+              },
+            }
           );
-          if (Array.isArray(votesData)) {
-            const formattedVotes = votesData.map(
-              (vote) => ({
-                id: vote.id,
-                createdBy: vote.createdBy,
-                createdAt: moment
-                  .utc(vote.createdAt)
-                  .format('YYYY-MM-DD HH:mm'),
-                category: vote.category,
-                title: vote.title,
-                question: vote.question,
-                likesCount: vote.likesCount,
-                choices: vote.choices.map((choice) => ({
-                  id: choice.id,
-                  text: choice.text,
-                })),
-              })
+          if (response.status === 200) {
+            const votesData = response.data;
+            console.log(
+              JSON.stringify(response.data, null, 2)
             );
-            console.log(formattedVotes);
 
-            // Set votes only if there is data
-            if (formattedVotes.length > 0) {
-              setVotes(formattedVotes);
+            if (Array.isArray(votesData)) {
+              const formattedVotes = votesData.map(
+                (vote) => ({
+                  id: vote.id,
+                  createdBy: vote.createdBy,
+                  createdAt: moment
+                    .utc(vote.createdAt)
+                    .format('YYYY-MM-DD HH:mm'),
+                  category: vote.category,
+                  title: vote.title,
+                  question: vote.question,
+                  choices: Array.isArray(vote.choices)
+                    ? vote.choices.map((choice) => ({
+                        id: choice.id,
+                        text: choice.text,
+                      }))
+                    : [],
+                })
+              );
+              console.log(formattedVotes);
+
+              // Set votes only if there is data
+              if (formattedVotes.length > 0) {
+                setVotes(formattedVotes);
+              }
+            } else {
+              console.error(
+                'Invalid votes data format:',
+                votesData
+              );
             }
           } else {
             console.error(
-              'Invalid votes data format:',
-              votesData
+              'Failed to fetch votes:',
+              response.data
             );
           }
-        } else {
-          console.error(
-            'Failed to fetch votes:',
-            response.data
-          );
         }
       } catch (error) {
         console.error('투표 데이터 가져오기:', error);
@@ -231,7 +236,7 @@ export const HomeScreen = ({ navigation, route }) => {
 
     // Call the voteData function to fetch votes when the component mounts
     voteData();
-  }, [nickname, jwtToken, votes]);
+  }, [updateDM]);
 
   const handleProfilePress = () => {
     if (isLoggedIn) {
@@ -250,7 +255,6 @@ export const HomeScreen = ({ navigation, route }) => {
     }
   };
   const handlePress = () => {
-    console.log('쪽지함으로 간다', updateDM);
     if (isLoggedIn) {
       navigation.navigate('DMboxScreen', {
         isLoggedIn: true,
@@ -259,6 +263,7 @@ export const HomeScreen = ({ navigation, route }) => {
         nickname,
         updateDM2: updateDM + 1,
       });
+      console.log('쪽지함으로 간다', updateDM);
       console.log('유저 페이지 이동:', userId);
       console.log('유저 페이지 이동:', isLoggedIn);
       console.log('nickname:', nickname);
@@ -279,50 +284,82 @@ export const HomeScreen = ({ navigation, route }) => {
   const renderPost = (
     category,
     title,
-    likeCounts,
+    likesCount,
     index
   ) => {
-    const startIndex = 1;
-    const endIndex = 3;
+    // Sort votes based on likesCount in descending order
+    const sortedVotes = votes
+      .filter((vote) => vote.likesCount !== undefined)
+      .sort((a, b) => b.likesCount - a.likesCount);
 
     // Render posts only for the current page
-    if (index >= startIndex && index <= endIndex) {
-      return (
-        <TouchableOpacity
-          key={`${category}-${title}`}
-          onPress={() => renderPostPress(category, title)}
-        >
-          <View>
+    if (index <= sortedVotes.length) {
+      // Check if there are votes for the current index
+      const vote = sortedVotes[index - 1];
+
+      if (vote) {
+        return (
+          <TouchableOpacity
+            key={`${category}-${title}`}
+            onPress={() => renderPostPress(category, title)}
+          >
+            <View>
+              <Image
+                source={require('./assets/box.png')}
+                style={styles.box}
+              />
+              <View style={styles.boxinbox}>
+                <View>
+                  <Text style={styles.boxintitle}>
+                    {vote.category}
+                  </Text>
+                  <Text style={styles.boxintext}>
+                    {vote.title}
+                  </Text>
+                </View>
+                <View style={styles.boxinbox2}>
+                  <Image
+                    source={require('./assets/good.png')}
+                    style={styles.goodbtn}
+                  />
+                  <Text style={styles.goodnum}>
+                    {vote.likesCount}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+        );
+      } else {
+        // Display "없음" when there are no votes for the current index
+        return (
+          <View key={`no-votes-${index}`}>
             <Image
               source={require('./assets/box.png')}
               style={styles.box}
             />
             <View style={styles.boxinbox}>
               <View>
-                <Text style={styles.boxintitle}>
-                  {category}
-                </Text>
-                <Text style={styles.boxintext}>
-                  {title}
-                </Text>
+                <Text style={styles.boxintitle}>없음</Text>
+                <Text style={styles.boxintext}>없음</Text>
               </View>
               <View style={styles.boxinbox2}>
                 <Image
                   source={require('./assets/good.png')}
                   style={styles.goodbtn}
                 />
-                <Text style={styles.goodnum}>
-                  {likeCounts}
-                </Text>
+                <Text style={styles.goodnum}></Text>
               </View>
             </View>
           </View>
-        </TouchableOpacity>
-      );
+        );
+      }
     } else {
-      return null; // Don't render anything for posts outside the current page
+      // If index is outside the valid range
+      return null;
     }
   };
+
   const handleCategoryPress = (selectedCategory) => {
     // Filter votes for the selected category
     const filteredVotes = votes.filter(
@@ -340,51 +377,6 @@ export const HomeScreen = ({ navigation, route }) => {
       filteredVotes,
       votes,
     });
-  };
-  const abc = async () => {
-    try {
-      const response = await axios.get(
-        'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes/ok/' +
-          nickname,
-        {
-          headers: {
-            'AUTH-TOKEN': jwtToken,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        const userVotes = response.data;
-
-        // Check if the user has voted for the selected poll
-        const hasVoted = userVotes.some(
-          (userVote) =>
-            userVote.pollId === firstMatchingVote?.id
-        );
-        console.log(hasVoted);
-        // Navigate to 'VoteBefore' or 'VoteAfter' based on the voting status
-        navigation.navigate(
-          hasVoted ? 'VoteAfter' : 'VoteBefore',
-          {
-            category,
-            vote: firstMatchingVote,
-            isLoggedIn,
-            userId,
-            jwtToken,
-            nickname,
-            updateDM2: updateDM + 1,
-            userVotes, // You can pass userVotes if needed in 'VoteAfter'
-          }
-        );
-      } else {
-        console.error(
-          'Failed to fetch user votes:',
-          response.data
-        );
-      }
-    } catch (error) {
-      console.error('Error fetching user votes:', error);
-    }
   };
 
   return (
@@ -432,8 +424,14 @@ export const HomeScreen = ({ navigation, route }) => {
             contentContainerStyle={styles.scrollViewContent}
             onScroll={handleScroll}
           >
-            {votes.map(({ category, title }, index) =>
-              renderPost(category, title, index)
+            {votes.map(
+              ({ category, title, likesCount }, index) =>
+                renderPost(
+                  category,
+                  title,
+                  likesCount,
+                  index
+                )
             )}
           </ScrollView>
           <PageIndicator
@@ -517,10 +515,15 @@ export const HomeScreen = ({ navigation, route }) => {
             </View>
             <View style={styles.category_sub_title_box}>
               {categories.map((category) => {
+                // Filter votes that match the current category
                 const matchingVotes = votes.filter(
                   (vote) => vote.category === category
                 );
+
+                // Use a Set to keep track of shown titles
                 const shownTitles = new Set();
+
+                // Find the first matching vote that has not been shown yet
                 const firstMatchingVote =
                   matchingVotes.find((vote) => {
                     if (!shownTitles.has(vote.title)) {
@@ -535,7 +538,58 @@ export const HomeScreen = ({ navigation, route }) => {
                     key={`${category}-${
                       firstMatchingVote?.title || nickname
                     }`}
-                    onPress={abc}
+                    onPress={async () => {
+                      try {
+                        // Fetch user votes from the backend
+                        const response = await axios.get(
+                          'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/votes/ok/' +
+                            nickname,
+                          {
+                            headers: {
+                              'AUTH-TOKEN': jwtToken,
+                            },
+                          }
+                        );
+
+                        if (response.status === 200) {
+                          const userVotes = response.data;
+
+                          // Check if the user has voted for the selected poll
+                          const hasVoted = userVotes.some(
+                            (userVote) =>
+                              userVote.pollId ===
+                              firstMatchingVote?.id
+                          );
+
+                          // Navigate to 'VoteBefore' or 'VoteAfter' based on the voting status
+                          navigation.navigate(
+                            hasVoted
+                              ? 'VoteAfter'
+                              : 'VoteBefore',
+                            {
+                              category,
+                              vote: firstMatchingVote,
+                              isLoggedIn,
+                              userId,
+                              jwtToken,
+                              nickname,
+                              updateDM2,
+                              userVotes, // You can pass userVotes if needed in 'VoteAfter'
+                            }
+                          );
+                        } else {
+                          console.error(
+                            'Failed to fetch user votes:',
+                            response.data
+                          );
+                        }
+                      } catch (error) {
+                        console.error(
+                          'Error fetching user votes:',
+                          error
+                        );
+                      }
+                    }}
                   >
                     <View style={styles.category_sub_box}>
                       <Text

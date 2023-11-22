@@ -34,7 +34,7 @@ export const DMboxScreen = ({ navigation, route }) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/message/read/all/' +
+          'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/message/read/all/' +
             nickname,
           {
             headers: {
@@ -80,7 +80,7 @@ export const DMboxScreen = ({ navigation, route }) => {
     // Fetch the message by messageId (Long 타입으로 전달)
     try {
       const messageResponse = await axios.get(
-        'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app//message/read/' +
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/message/read/' +
           selectedMessage.messageId1,
         {
           headers: {

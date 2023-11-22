@@ -128,6 +128,7 @@ export const VoteMake = ({ navigation, route }) => {
     } else {
       const data = {
         user: nickname,
+        createdBy: nickname,
         title: titleInput,
         question: description,
         category: selectedCategory,
@@ -139,7 +140,7 @@ export const VoteMake = ({ navigation, route }) => {
 
       try {
         const response = await axios.post(
-          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/polls',
+          'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/polls',
           data,
           {
             headers: {

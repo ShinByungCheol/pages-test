@@ -434,7 +434,7 @@ export const styles = StyleSheet.create({
   input_label_view: {
     flexDirection: 'row',
     heigth: h * 0.02,
-    marginTop: h * 0.002,
+    marginTop: h * 0.005,
   },
   //////////////
   signup_page_label_view: {
@@ -498,7 +498,7 @@ export const styles = StyleSheet.create({
     marginTop: h * 0.016,
   },
   mbti_select_ios: {
-    marginLeft: w * 0.26,
+    marginLeft: w * 0.27,
     marginTop: h * 0.009,
     width: w * 0.3,
   },
@@ -898,7 +898,7 @@ export const styles = StyleSheet.create({
     fontSize: h * 0.02,
   },
   VoteMake_View1_category_Picker_View: {
-    marginLeft: w * 0.1,
+    marginLeft: w * 0.22,
     marginTop: -h * 0.1,
   }, //피커위치
   VoteMake_View1_category_Picker1: {
@@ -1081,7 +1081,7 @@ export const styles = StyleSheet.create({
     borderColor: 'black',
     padding: w * 0.01,
     textAlignVertical: 'top',
-    height: h * 0.35,
+    height: h * 0.1,
   }, //본문내용
   VoteBefore_View2_Votebotton: {
     height: h * 0.055,

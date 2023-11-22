@@ -31,7 +31,7 @@ export const LoginScreen = ({ navigation }) => {
 
     try {
       const response = await axios.post(
-        'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/auth/signin',
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/auth/signin',
         userData
       );
 
@@ -43,6 +43,7 @@ export const LoginScreen = ({ navigation }) => {
         setUserId(id);
         setToken(token);
         setNickname(nick);
+
         socket = new WebSocket(
           'wss://port-0-capstone-project-gj8u2llon19kg3.sel5.cloudtype.app/test?uid=' +
             userId

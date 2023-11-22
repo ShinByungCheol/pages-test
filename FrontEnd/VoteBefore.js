@@ -69,7 +69,7 @@ export const VoteBefore = ({ navigation, route }) => {
     console.log(VoteDto);
     try {
       const response = await axios.post(
-        'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes',
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/votes',
         VoteDto,
         {
           headers: {

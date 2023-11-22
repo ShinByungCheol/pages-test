@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -34,32 +34,95 @@ export const VoteAfter = ({ navigation, route }) => {
     text: choice.text,
     votes: 0, // 초기 투표 수를 0으로 설정
   }));
-
   const [commentText, setCommentText] = useState('');
 
   const [commentError, setCommentError] = useState('');
 
-  const handleCommentSubmit = () => {
-    if (commentText.trim() === '') {
-      setCommentError('내용을 입력하세요.');
+  const [commentBox, setCommentBox] = useState('');
+
+  // 댓글 생성
+  const handleCommentSubmit = async () => {
+    // 유효성 검사: 댓글 내용이 비어있는지 확인
+    if (!commentText.trim()) {
+      alert('댓글 내용을 입력하세요.');
       return;
     }
-
-    const newComment = {
-      text: commentText,
-      likes: 0,
-      reported: false,
-      replies: [],
+    const commentData = {
+      content: commentText,
+      uid: userId,
+      pollId: vote.id,
     };
+    console.log(commentData);
+    // 서버로 댓글 전송
+    try {
+      const response = await axios.post(
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/api/comments/' +
+          userId +
+          '/' +
+          vote.id,
+        commentData,
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
 
-    setComments((prevComments) => [
-      ...prevComments,
-      newComment,
-    ]);
-    setCommentText('');
-    setCommentError('');
+      if (response.status === 201) {
+        console.log('댓글 작성 성공:', response.data);
+        setCommentText(''); // 댓글 작성 후 입력창 초기화
+      } else {
+        console.error('댓글 작성 실패:', response.data);
+      }
+    } catch (error) {
+      console.error('댓글 작성 오류:', error);
+    }
   };
 
+  // 댓글 조회하기 받아오기
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/message/read/all/' +
+  //           nickname,
+  //         {
+  //           headers: {
+  //             'AUTH-TOKEN': jwtToken,
+  //           },
+  //         }
+  //       );
+
+  //       if (response.status === 200) {
+  //         // Assuming the response data is an array of messages
+  //         const messagesData = response.data;
+  //         console.log(
+  //           JSON.stringify(response.data, null, 2)
+  //         );
+  //         // Extracting and mapping relevant data from the response
+  //         const formattedMessages = messagesData.map(
+  //           (message) => ({
+  //             username: message.sender,
+  //             time: message.sendTime,
+  //             title: message.content,
+  //             isRead: message.readStatus,
+  //           })
+  //         );
+
+  //         setMessages(formattedMessages);
+  //       } else {
+  //         console.error(
+  //           'Failed to fetch messages:',
+  //           response.data
+  //         );
+  //       }
+  //     } catch (error) {
+  //       console.error('쪽지 데이터 가져오기:', error);
+  //     }
+  //   };
+  //   // Call the fetchData function to fetch messages when the component mounts
+  //   fetchData();
+  // }, []);
   const Comment = ({ comment, index }) => {
     const commentTime = getCurrentTime();
 
@@ -204,22 +267,6 @@ export const VoteAfter = ({ navigation, route }) => {
     console.log('vote : ', vote);
   };
 
-  const getCurrentTime = () => {
-    const now = new Date();
-    const hours = now
-      .getHours()
-      .toString()
-      .padStart(2, '0');
-    const minutes = now
-      .getMinutes()
-      .toString()
-      .padStart(2, '0');
-    return `${hours}:${minutes}`;
-  };
-  {
-    /* 댓글작성시 현재시간 등록후 고정 */
-  }
-
   const getRecommendCount = (comment) => {
     // 해당 댓글의 추천수를 가져오는 로직을 추가
     // 댓글 객체에 추천수를 저장하고 그 값을 반환하는 방식으로 구현
@@ -300,49 +347,41 @@ export const VoteAfter = ({ navigation, route }) => {
 
   return (
     <View style={styles.status_x}>
-      <ScrollView>
-        <View style={styles.main_Row12}>
-          <View style={styles.back_view12}>
-            <TouchableOpacity onPress={handleGoBack}>
-              <AntDesign
-                name="arrowleft"
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.btns}>
-            <TouchableOpacity
-              onPress={handleHeartClick}
-              style={styles.VoteBefore_View1_heart}
-            >
-              {heartType === 'empty' ? (
-                <Entypo
-                  name="heart-outlined"
-                  size={30}
-                  color="black"
-                />
-              ) : (
-                <Entypo
-                  name="heart"
-                  size={30}
-                  color="red"
-                />
-              )}
-            </TouchableOpacity>
-            {/* 좋아요 버튼: 클릭시 색상변경 */}
-            <TouchableOpacity
-              style={styles.VoteBefore_View1_share}
-            >
-              <Entypo
-                name="share"
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
-            {/* 공유 버튼 */}
-          </View>
+      <View style={styles.main_Row12}>
+        <View style={styles.back_view12}>
+          <TouchableOpacity onPress={handleGoBack}>
+            <AntDesign
+              name="arrowleft"
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
         </View>
+        <View style={styles.btns}>
+          <TouchableOpacity
+            onPress={handleHeartClick}
+            style={styles.VoteBefore_View1_heart}
+          >
+            {heartType === 'empty' ? (
+              <Entypo
+                name="heart-outlined"
+                size={30}
+                color="black"
+              />
+            ) : (
+              <Entypo name="heart" size={30} color="red" />
+            )}
+          </TouchableOpacity>
+          {/* 좋아요 버튼: 클릭시 색상변경 */}
+          <TouchableOpacity
+            style={styles.VoteBefore_View1_share}
+          >
+            <Entypo name="share" size={24} color="black" />
+          </TouchableOpacity>
+          {/* 공유 버튼 */}
+        </View>
+      </View>
+      <ScrollView>
         <View style={styles.VoteBefore_View1_All}>
           <View>
             <Text style={styles.VoteBefore_View1_title}>
@@ -456,6 +495,7 @@ export const VoteAfter = ({ navigation, route }) => {
           {/* 답글출력창 */}
 
           <View style={styles.VoteAfter_View3_comment}>
+            {/* 댓글입력창 */}
             <TouchableOpacity
               onPress={() => {
                 setComments([...comments, commentText]);
@@ -463,7 +503,6 @@ export const VoteAfter = ({ navigation, route }) => {
               }}
             ></TouchableOpacity>
           </View>
-          {/* 댓글입력창 */}
 
           <View>
             <TextInput
@@ -479,6 +518,7 @@ export const VoteAfter = ({ navigation, route }) => {
           {/* 댓글입력창 텍스트 */}
 
           <View>
+            {/* 댓글입력버튼 */}
             <TouchableOpacity
               style={styles.VoteAfter_View3_textinput}
               onPress={handleCommentSubmit}
@@ -486,11 +526,10 @@ export const VoteAfter = ({ navigation, route }) => {
               <Entypo
                 name="direction"
                 size={24}
-                color="tomato"
+                color="#4B89DC"
               />
             </TouchableOpacity>
           </View>
-          {/* 댓글입력버튼 */}
 
           <View>
             {commentError !== '' && (

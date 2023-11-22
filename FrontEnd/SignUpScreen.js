@@ -46,6 +46,7 @@ export const SignUpScreen = ({ navigation }) => {
     { label: 'ESTP', value: 'ESTP' },
     { label: 'ESTJ', value: 'ESTJ' },
   ];
+
   const handleSignUp = async () => {
     if (isButtonDisabled) {
       return; // If button is disabled, prevent multiple requests
@@ -83,7 +84,7 @@ export const SignUpScreen = ({ navigation }) => {
 
     try {
       const response = await axios.post(
-        'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/auth/signup',
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/auth/signup',
         userData
       );
 
@@ -132,7 +133,7 @@ export const SignUpScreen = ({ navigation }) => {
             </Text>
           </View>
           <TextInput
-            placeholder="                                                                "
+            placeholder="ID 입력 해주세요"
             value={id}
             onChangeText={(text) => setId(text)}
             style={styles.signup_page_inputfield}

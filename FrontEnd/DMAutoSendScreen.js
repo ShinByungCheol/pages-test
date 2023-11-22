@@ -33,7 +33,7 @@ export const DMAutoSendScreen = ({ navigation, route }) => {
     };
     try {
       const response = await axios.post(
-        'http://port-0-capstone-project-gj8u2llon19kg3.sel5.cloudtype.app/message/send',
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/message/send',
         messageData,
         {
           headers: {

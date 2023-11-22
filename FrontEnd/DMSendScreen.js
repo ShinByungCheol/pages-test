@@ -23,7 +23,6 @@ export const DMSendScreen = ({ navigation, route }) => {
   const [messageContent, setMessageContent] = useState('');
   const unreadMessageCount =
     route.params.unreadMessageCount;
-
   const handleSendMessage = async () => {
     // Assuming you want to send the message data back to DMboxScreen
     const messageData = {
@@ -31,10 +30,9 @@ export const DMSendScreen = ({ navigation, route }) => {
       receiver: recipientId,
       content: messageContent,
     };
-
     try {
       const response = await axios.post(
-        'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app//message/send',
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/message/send',
         messageData,
         {
           headers: {
