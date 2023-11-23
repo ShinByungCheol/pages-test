@@ -881,7 +881,7 @@ export const styles = StyleSheet.create({
     width: w * 0.7,
     borderBottomColor: 'black',
     marginLeft: w * 0.03,
-    fontSize: h * 0.02,
+    fontSize: h * 0.018,
     borderBottomWidth: h * 0.0012,
   }, //제목입력글씨
 
@@ -906,8 +906,8 @@ export const styles = StyleSheet.create({
   },
   VoteMake_View1_category_Picker2: {
     marginTop: h * 0.098,
-    width: w * 0.2,
-    fontSize: h * 0.02,
+    width: w * 0.4,
+    fontSize: h * 0.018,
   },
   VoteMake_View1_category_Picker: {
     height: h * 0.01,
@@ -925,14 +925,15 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   }, //사진첨부
   VoteMake_View2_textcontent: {
-    marginTop: h * 0.01,
+    marginTop: h * 0.015,
     width: w * 0.85,
     marginBottom: h * 0.05,
     borderWidth: 1,
     borderColor: 'black',
     padding: w * 0.01,
-    textAlignVertical: 'top',
     height: h * 0.2,
+    fontSize: h * 0.018,
+    textAlign: 'left',
   }, //본문내용입력
   VoteMake_View2_textcontent1: {
     marginLeft: w * 0.07,

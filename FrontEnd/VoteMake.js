@@ -23,21 +23,20 @@ export const VoteMake = ({ navigation, route }) => {
     nickname,
     updateDM2,
   } = route.params;
+
+  // 제목 입력
   const [titleInput, setTitleInput] = useState('');
-  {
-    /* 제목내용 */
-  }
 
+  // 본문 입력
   const [description, setDescription] = useState('');
-  {
-    /* 본문내용 */
-  }
 
+  // 카테고리 선택
   const [selectedCategory, setSelectedCategory] =
     useState('');
-  {
-    /* 선택한 카테고리 상태 */
-  }
+  const placeholder = {
+    label: '선택',
+    value: null,
+  };
   const categories = [
     { label: '정치', value: '정치' },
     { label: '경제', value: '경제' },
@@ -49,11 +48,10 @@ export const VoteMake = ({ navigation, route }) => {
     { label: '음식', value: '음식' },
   ];
 
+  // 선택 사항
   const [options, setOptions] = useState(['', '']);
-  {
-    /* 투표항목 초기값을 2개로 지정 */
-  }
 
+  // 선택 사항 추가
   const addOption = () => {
     if (options.length < 4) {
       setOptions([...options, '']);
@@ -64,10 +62,8 @@ export const VoteMake = ({ navigation, route }) => {
       );
     }
   };
-  {
-    /* 투표항목 추가로직 */
-  }
 
+  // 선택 사항 삭제
   const removeOption = (indexToRemove) => {
     if (options.length > 2) {
       const newOptions = options.filter(
@@ -81,36 +77,8 @@ export const VoteMake = ({ navigation, route }) => {
       );
     }
   };
-  {
-    /* 투표항목 삭제로직 */
-  }
 
-  const renderOptionItem = ({ item, index }) => (
-    <View
-      key={index}
-      style={styles.VoteMake_View3_content_interval}
-    >
-      <View style={styles.VoteMake_View3_Votecontent}>
-        <TextInput
-          style={styles.VoteMake_View3_Votecontent1}
-          placeholder={`투표항목 내용을 입력하세요`}
-          value={item}
-          onChangeText={(text) => {
-            const newOptions = [...options];
-            newOptions[index] = text;
-            setOptions(newOptions);
-          }}
-        />
-      </View>
-      {/* 투표항목 추가 및 입력 버튼 */}
-
-      <TouchableOpacity onPress={() => removeOption(index)}>
-        <AntDesign name="minus" size={28} color="#4B89DC" />
-      </TouchableOpacity>
-      {/* 투표항목 추가 및 입력 버튼 */}
-    </View>
-  );
-
+  // 투표 생성
   const createVote = async () => {
     if (titleInput.trim() === '') {
       Alert.alert('알림', '제목을 입력하세요.');
@@ -156,7 +124,7 @@ export const VoteMake = ({ navigation, route }) => {
             userId,
             jwtToken,
             nickname,
-            updateDM2: updateDM2,
+            updateDM2: updateDM2 + 1,
           });
         } else {
           console.error('투표 생성 실패:', response.data);
@@ -174,10 +142,6 @@ export const VoteMake = ({ navigation, route }) => {
       updateDM2,
     });
   };
-
-  {
-    /* 투표생성로직_제목,카테고리,본문,투표항목중 하나라도 선택안되면 투표생성불가 */
-  }
 
   return (
     <View style={styles.status_x}>
@@ -246,6 +210,7 @@ export const VoteMake = ({ navigation, route }) => {
                 }
               >
                 <RNPickerSelect
+                  placeholder={placeholder}
                   value={selectedCategory}
                   onValueChange={(itemValue) =>
                     setSelectedCategory(itemValue)
@@ -263,9 +228,9 @@ export const VoteMake = ({ navigation, route }) => {
             {/* 카테고리 피커 */}
 
             <View style={styles.VoteMake_View2_content}>
-              <Text style={styles.VoteMake_View2_titlename}>
-                본문
-              </Text>
+              <Text
+                style={styles.VoteMake_View2_titlename}
+              ></Text>
 
               {/* 본문글씨 */}
               <TouchableOpacity
@@ -283,23 +248,53 @@ export const VoteMake = ({ navigation, route }) => {
           </View>
           <View style={styles.VoteMake_View2_textcontent1}>
             <TextInput
+              placeholder="본문 내용을 입력하세요"
               style={styles.VoteMake_View2_textcontent}
               multiline
               onChangeText={(text) => setDescription(text)}
               value={description}
-              placeholder="본문 내용을 입력하세요"
             />
           </View>
           {/*본문 내용 입력}*/}
 
           <View>
-            <FlatList
-              data={options}
-              renderItem={renderOptionItem}
-              keyExtractor={(item, index) =>
-                index.toString()
-              }
-            />
+            {options.map((item, index) => (
+              <View
+                key={index}
+                style={
+                  styles.VoteMake_View3_content_interval
+                }
+              >
+                <View
+                  style={styles.VoteMake_View3_Votecontent}
+                >
+                  <TextInput
+                    style={
+                      styles.VoteMake_View3_Votecontent1
+                    }
+                    placeholder={`투표항목 내용을 입력하세요`}
+                    value={item}
+                    onChangeText={(text) => {
+                      const newOptions = [...options];
+                      newOptions[index] = text;
+                      setOptions(newOptions);
+                    }}
+                  />
+                </View>
+                {/* 투표항목 추가 및 입력 버튼 */}
+
+                <TouchableOpacity
+                  onPress={() => removeOption(index)}
+                >
+                  <AntDesign
+                    name="minus"
+                    size={28}
+                    color="#4B89DC"
+                  />
+                </TouchableOpacity>
+                {/* 투표항목 추가 및 입력 버튼 */}
+              </View>
+            ))}
           </View>
           {/*추가된 투표항목}*/}
 

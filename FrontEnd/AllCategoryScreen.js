@@ -61,7 +61,7 @@ export const AllCategoryScreen = ({
     const voteData = async () => {
       try {
         const response = await axios.get(
-          'https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/polls/all',
+          'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/polls/all',
           {
             headers: {
               'AUTH-TOKEN': jwtToken,

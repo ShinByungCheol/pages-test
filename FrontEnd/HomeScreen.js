@@ -202,6 +202,7 @@ export const HomeScreen = ({ navigation, route }) => {
                   category: vote.category,
                   title: vote.title,
                   question: vote.question,
+                  likedUser: vote.likedUserNicknames,
                   choices: Array.isArray(vote.choices)
                     ? vote.choices.map((choice) => ({
                         id: choice.id,
@@ -270,16 +271,54 @@ export const HomeScreen = ({ navigation, route }) => {
       console.log('jwtToken:', jwtToken);
     }
   };
-  const renderPostPress = ({ category, title }) => {
-    navigation.navigate('VoteBefore', {
-      category,
-      title,
-      isLoggedIn,
-      userId,
-      jwtToken,
-      nickname,
-      updateDM2,
-    });
+  const renderPostPress = async (
+    category,
+    firstMatchingVote
+  ) => {
+    try {
+      // Fetch user votes from the backend
+      const response = await axios.get(
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/votes/ok/' +
+          nickname,
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const userVotes = response.data;
+
+        // Check if the user has voted for the selected poll
+        const hasVoted = userVotes.some(
+          (userVote) =>
+            userVote.pollId === firstMatchingVote?.id
+        );
+
+        // Navigate to 'VoteBefore' or 'VoteAfter' based on the voting status
+        navigation.navigate(
+          hasVoted ? 'VoteAfter' : 'VoteBefore',
+          {
+            category,
+            vote: firstMatchingVote,
+            isLoggedIn,
+            userId,
+            jwtToken,
+            nickname,
+            updateDM2,
+            userVotes, // You can pass userVotes if needed in 'VoteAfter'
+          }
+        );
+      } else {
+        console.error(
+          'Failed to fetch user votes:',
+          response.data
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching user votes:', error);
+    }
   };
   const renderPost = (
     category,
@@ -287,21 +326,32 @@ export const HomeScreen = ({ navigation, route }) => {
     likesCount,
     index
   ) => {
-    // Sort votes based on likesCount in descending order
-    const sortedVotes = votes
-      .filter((vote) => vote.likesCount !== undefined)
-      .sort((a, b) => b.likesCount - a.likesCount);
+    // Filter out votes without likesCount
+    const filteredVotes = votes.filter(
+      (vote) => vote.likesCount !== undefined
+    );
+
+    // Sort votes based on likesCount in descending order, then by createdAt in descending order
+    const sortedVotes = filteredVotes.sort((a, b) => {
+      if (b.likesCount !== a.likesCount) {
+        return b.likesCount - a.likesCount;
+      } else {
+        return (
+          new Date(b.createdAt) - new Date(a.createdAt)
+        );
+      }
+    });
 
     // Render posts only for the current page
-    if (index <= sortedVotes.length) {
+    if (index < sortedVotes.length) {
       // Check if there are votes for the current index
-      const vote = sortedVotes[index - 1];
+      const vote = sortedVotes[index];
 
       if (vote) {
         return (
           <TouchableOpacity
             key={`${category}-${title}`}
-            onPress={() => renderPostPress(category, title)}
+            onPress={() => renderPostPress(category, vote)}
           >
             <View>
               <Image

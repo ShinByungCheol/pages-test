@@ -207,7 +207,7 @@ export const SignUpScreen = ({ navigation }) => {
             </Text>
           </View>
           <TextInput
-            placeholder="                                                                "
+            placeholder="나이 입력 해주세요!"
             value={ageGroup}
             onChangeText={(text) => setAgeGroup(text)}
             style={styles.signup_page_inputfield}

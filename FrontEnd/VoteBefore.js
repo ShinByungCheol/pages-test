@@ -94,15 +94,6 @@ export const VoteBefore = ({ navigation, route }) => {
     });
   };
 
-  const home = () => {
-    navigation.navigate('HomeScreen', {
-      userId,
-      isLoggedIn,
-      jwtToken,
-      nickname,
-      updateDM2,
-    });
-  };
   const handleGoBack = () => {
     // navigation.goBack()을 호출하여 이전 화면으로 이동
     navigation.goBack();

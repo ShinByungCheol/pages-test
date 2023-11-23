@@ -11,15 +11,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { styles } from './styles';
 import axios from 'axios';
 
-export const UserAuthenticationScreen = ({ navigation, route }) => {
-  const { userId, isLoggedIn, password, jwtToken, nickname, mbti } =
-    route.params;
+export const UserAuthenticationScreen = ({
+  navigation,
+  route,
+}) => {
+  const {
+    userId,
+    isLoggedIn,
+    password,
+    jwtToken,
+    nickname,
+    mbti,
+  } = route.params;
   const [inputPassword, setInputPassword] = useState('');
 
   const handleAuthenticationPassword = async () => {
     try {
       const response = await axios.post(
-        'http://port-0-capstone-project-gj8u2llon19kg3.sel5.cloudtype.app/auth/patch/check',
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/auth/patch/check',
         {
           uid: userId,
           password: inputPassword,
@@ -57,8 +66,14 @@ export const UserAuthenticationScreen = ({ navigation, route }) => {
     <SafeAreaView>
       <View style={styles.header}>
         <View style={styles.header_left}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back-outline" size={24} color="black" />
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons
+              name="chevron-back-outline"
+              size={24}
+              color="black"
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.header_center}>
@@ -68,7 +83,8 @@ export const UserAuthenticationScreen = ({ navigation, route }) => {
       </View>
       <View style={styles.text_container}>
         <Text style={styles.signup_page_label_text}>
-          회원정보 수정을 위해서 비밀번호를 한 번 입력해야 합니다.
+          회원정보 수정을 위해서 비밀번호를 한 번 입력해야
+          합니다.
         </Text>
         <Text style={styles.signup_page_label_text}>
           현재 사용중인 비밀번호를 입력해주세요.
@@ -77,7 +93,9 @@ export const UserAuthenticationScreen = ({ navigation, route }) => {
       <View style={styles.text_input_container}>
         <View style={styles.input_label_view}>
           <View style={styles.signup_page_label_view}>
-            <Text style={styles.signup_page_label_text}>비밀번호</Text>
+            <Text style={styles.signup_page_label_text}>
+              비밀번호
+            </Text>
           </View>
           <TextInput
             placeholder="사용중인 비밀번호 입력"
@@ -92,7 +110,9 @@ export const UserAuthenticationScreen = ({ navigation, route }) => {
           style={styles.update_button}
           onPress={handleAuthenticationPassword} // Call the password authentication function when the button is pressed
         >
-          <Text style={styles.button_text}>본인인증하기</Text>
+          <Text style={styles.button_text}>
+            본인인증하기
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

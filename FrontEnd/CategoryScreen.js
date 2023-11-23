@@ -21,7 +21,7 @@ export const CategoryScreen = ({ navigation, route }) => {
   const handleVotePress = async (vote) => {
     try {
       const response = await axios.get(
-        `https://port-0-capstone-backend-1d6du62aloxt3u8i.sel5.cloudtype.app/votes/ok/${nickname}`,
+        `https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/votes/ok/${nickname}`,
         {
           headers: {
             'AUTH-TOKEN': jwtToken,

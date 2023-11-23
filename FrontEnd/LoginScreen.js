@@ -45,7 +45,7 @@ export const LoginScreen = ({ navigation }) => {
         setNickname(nick);
 
         socket = new WebSocket(
-          'wss://port-0-capstone-project-gj8u2llon19kg3.sel5.cloudtype.app/test?uid=' +
+          'wss://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/test?uid=' +
             userId
         );
         socket.onopen = () => {
