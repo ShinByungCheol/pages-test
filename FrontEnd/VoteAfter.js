@@ -15,7 +15,7 @@ import { TextInput } from 'react-native';
 import { styles } from './styles';
 import { Alert } from 'react-native';
 import axios from 'axios'; // Import axios for HTTP requests
-
+import { KeyboardAvoidingView } from 'react-native';
 export const VoteAfter = ({ navigation, route }) => {
   const {
     vote,
@@ -23,10 +23,10 @@ export const VoteAfter = ({ navigation, route }) => {
     isLoggedIn,
     jwtToken,
     nickname,
-    updateDM2,
     userVotes,
   } = route.params;
 
+  const [updateDM5, setUpdateDM5] = useState(1);
   const [comments, setComments] = useState([]);
   const [pollOptions, setPollOptions] = useState([]);
   const newChoices = vote.choices.map((choice) => ({
@@ -35,10 +35,56 @@ export const VoteAfter = ({ navigation, route }) => {
     votes: 0, // 초기 투표 수를 0으로 설정
   }));
   const [commentText, setCommentText] = useState('');
-
   const [commentError, setCommentError] = useState('');
-
   const [commentBox, setCommentBox] = useState([]);
+  //게시글 id로 댓글 조회해서 받아오기
+  useEffect(() => {
+    const fetchcommentData = async () => {
+      try {
+        const response = await axios.get(
+          'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/api/comments/poll/' +
+            vote.id,
+          {
+            headers: {
+              'AUTH-TOKEN': jwtToken,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          // Assuming the response data is an array of messages
+          const messagesData = response.data;
+          // console.log(
+          //   '투표 id 보내서 댓글 조회 하기',
+          //   JSON.stringify(response.data, null, 2)
+          // );
+          // Extracting and mapping relevant data from the response
+          const formattedMessages = messagesData.map(
+            (message) => ({
+              id: message.id,
+              writer: message.nickname,
+              content: message.content,
+              time: message.time,
+              likes: message.likes,
+            })
+          );
+
+          // Assuming response.data is an array of comments
+          setComments(formattedMessages);
+        } else {
+          console.error(
+            'Failed to fetch messages:',
+            response.data
+          );
+        }
+      } catch (error) {
+        console.error('댓글 조회하기 가져오기:', error);
+      }
+    };
+    // Call the fetchData function to fetch messages when the component mounts
+    fetchcommentData();
+  }, [updateDM5]);
+
   // 댓글 생성
   const handleCommentSubmit = async () => {
     // 유효성 검사: 댓글 내용이 비어있는지 확인
@@ -85,50 +131,16 @@ export const VoteAfter = ({ navigation, route }) => {
     }
   };
 
-  //게시글 id로 댓글 조회해서 받아오기
-  useEffect(() => {
-    const fetchcommentData = async () => {
-      try {
-        const response = await axios.get(
-          'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/api/comments/' +
-            vote.id,
-          {
-            headers: {
-              'AUTH-TOKEN': jwtToken,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          // Assuming the response data is an array of messages
-          const messagesData = response.data;
-          console.log(
-            '투표 id 보내서 댓글 조회 하기',
-            JSON.stringify(response.data, null, 2)
-          );
-        } else {
-          console.error(
-            'Failed to fetch messages:',
-            response.data
-          );
-        }
-      } catch (error) {
-        console.error('쪽지 데이터 가져오기:', error);
-      }
-    };
-    // Call the fetchData function to fetch messages when the component mounts
-    fetchcommentData();
-  }, []);
-
+  //댓글 출력 창
   const Comment = ({ comment, index }) => {
     return (
       <View key={index}>
         <View style={styles.VoteAfter_View3_comment}>
           <Text style={styles.VoteAfter_View3_nickname}>
-            작성자 :
+            작성자 : {comment.writer}
           </Text>
           <Text style={styles.VoteAfter_View3_commenttime}>
-            작성시간:
+            작성시간: {comment.time}
           </Text>
           {/* 작성시간 */}
 
@@ -142,38 +154,169 @@ export const VoteAfter = ({ navigation, route }) => {
                 size={18}
                 color="red"
               />
+              <Text
+                style={styles.VoteAfter_View3_report_text}
+              >
+                신고
+              </Text>
             </TouchableOpacity>
           </View>
           {/* 신고버튼 */}
-
-          <View style={styles.VoteAfter_View3_like}>
-            <TouchableOpacity
-              onPress={() => handleLikePress(index)}
-            >
-              <AntDesign
-                name="like2"
-                size={18}
-                color="blue"
-              />
-            </TouchableOpacity>
-          </View>
-          {/* 추천버튼 */}
         </View>
 
         <View>
           <Text style={styles.VoteAfter_View3_text}>
-            {comment.text}
+            {comment.content}
           </Text>
         </View>
         {/* 댓글*/}
 
+        <View style={styles.VoteAfter_View3_totalLike}>
+          <TouchableOpacity
+            onPress={() => commentLike(comment, index)}
+          >
+            <AntDesign
+              name="like2"
+              size={18}
+              color="blue"
+            />
+          </TouchableOpacity>
+          <Text
+            style={styles.VoteAfter_View3_totalLikenumber}
+          >
+            {comment.likes}
+          </Text>
+          {/* 좋아요합계*/}
+
+          <View>
+            <TouchableOpacity
+              style={styles.VoteAfter_View3_recomment}
+              onPress={() =>
+                handleReplyPress(comment, index)
+              }
+            >
+              <Entypo
+                name="reply"
+                size={18}
+                color="black"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+        {/* 답글버튼*/}
         <View style={styles.VoteBefore_View3_commentRow} />
       </View>
     );
   };
 
-  const [heartType, setHeartType] = useState('empty');
+  // 댓글 좋아요~
+  const commentLike = async (comment, index) => {
+    console.log('comment ', comment);
+    try {
+      const response = await axios.post(
+        `https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/api/comments/like/${userId}/${vote.id}/${comment.id}`,
+        {}, // Empty object as the request body
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
+      // Increment updateDM by 1
+      setUpdateDM5(updateDM5 + 1);
 
+      console.log('변경 전', updateDM5);
+      if (response.status === 200) {
+        console.log('변경 후', updateDM5);
+        console.log(
+          '댓글 좋아요 성공',
+          JSON.stringify(response.data, null, 2)
+        );
+      } else {
+        console.error('댓글 좋아요 실패', response.data);
+      }
+    } catch (error) {
+      console.error('댓글 좋아요 보내기:', error);
+    }
+  };
+
+  const [heartType, setHeartType] = useState('empty');
+  // 여기까지 좋아요~
+
+  const handleReplyPress = (index) => {
+    // 답글 달기 버튼 누를 때의 처리
+    // index를 사용하여 해당 댓글에 대한 답글 입력 등의 처리를 가능
+    setReplyingIndex(index);
+    setReplyText('');
+    setShowReplyInput(true);
+  };
+
+  const handleGoBack = () => {
+    // navigation.goBack()을 호출하여 이전 화면으로 이동
+    navigation.goBack({});
+  };
+
+  const [showReplyInput, setShowReplyInput] =
+    useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [replyingIndex, setReplyingIndex] = useState(null);
+  const [replycommentBox, setReplycommentBox] = useState(
+    []
+  );
+
+  // 대댓글 작성
+  const handleAddReplySubmit = async (comment, index) => {
+    if (replyText.trim() === '') {
+      setCommentError('답글 내용을 입력하세요.');
+      return;
+    }
+    const commentData = {
+      comment: replyText,
+    };
+    console.log(commentData);
+    // 서버로 댓글 전송
+    try {
+      const response = await axios.post(
+        `https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/api/comments/${userId}/${vote.id}/${comment.id}`,
+        commentData,
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
+      // Increment updateDM by 1
+      setUpdateDM5(updateDM5 + 1);
+
+      console.log('변경 전', updateDM5);
+      if (response.status === 200) {
+        console.log('변경 후', updateDM5);
+        console.log(
+          '답글 작성 성공',
+          JSON.stringify(response.data, null, 2)
+        );
+      } else {
+        console.error('답글 작성 실패', response.data);
+      }
+    } catch (error) {
+      console.error('답글 작성 오류~:', error);
+    }
+    setShowReplyInput(false);
+    setReplyText('');
+    setReplyingIndex(null);
+    setCommentError('');
+  };
+
+  const getRecommendCount = (comment) => {
+    // 해당 댓글의 추천수를 가져오는 로직을 추가
+    // 댓글 객체에 추천수를 저장하고 그 값을 반환하는 방식으로 구현
+    return comment.recommendCount || 0;
+  };
+  const handleSendMessage = (comment) => {
+    //쪽지를 보내는 로직을 추가
+
+    console.log(`Sending a message to: ${comment.author}`);
+  };
   const handleHeartClick = async () => {
     const data = {
       pollId: vote.id,
@@ -210,7 +353,6 @@ export const VoteAfter = ({ navigation, route }) => {
     console.log('userVotes : ', userVotes);
     console.log('vote : ', vote);
   };
-
   const handleLikePress = (index) => {
     // 추천 버튼 누를 때의 처리
     // index를 사용하여 해당 댓글의 상태를 업데이트 가능
@@ -221,7 +363,6 @@ export const VoteAfter = ({ navigation, route }) => {
     );
     setComments(updatedComments);
   };
-
   const handleReportPress = (index) => {
     // 신고 버튼 누를 때의 처리
     // index를 사용하여 해당 댓글의 상태를 업데이트 가능
@@ -230,55 +371,16 @@ export const VoteAfter = ({ navigation, route }) => {
     );
     setComments(updatedComments);
   };
-
-  const handleReplyPress = (index) => {
-    // 답글 달기 버튼 누를 때의 처리
-    // index를 사용하여 해당 댓글에 대한 답글 입력 등의 처리를 가능
-    setReplyingIndex(index);
-    setReplyText('');
-    setShowReplyInput(true);
-  };
-  const handleGoBack = () => {
-    // navigation.goBack()을 호출하여 이전 화면으로 이동
-    navigation.goBack({});
-  };
-  const [showReplyInput, setShowReplyInput] =
-    useState(false);
-  const [replyText, setReplyText] = useState('');
-  const [replyingIndex, setReplyingIndex] = useState(null);
-  const handleAddReply = () => {
-    if (replyText.trim() === '') {
-      setCommentError('답글 내용을 입력하세요.');
-      return;
-    }
-
-    const updatedComments = comments.map(
-      (comment, index) => {
-        if (index === replyingIndex) {
-          return {
-            ...comment,
-            replies: [
-              ...comment.replies,
-              { text: replyText, author: 'CurrentUser' },
-            ],
-          };
-        }
-        return comment;
-      }
-    );
-
-    setComments(updatedComments);
-    setShowReplyInput(false);
-    setReplyText('');
-    setReplyingIndex(null);
-    setCommentError('');
-  };
-  {
-    /* 답글추가로직 */
-  }
-
   return (
-    <View style={styles.status_x}>
+    <KeyboardAvoidingView
+      behavior={
+        Platform.OS === 'ios' ? 'padding' : 'height'
+      }
+      keyboardVerticalOffset={
+        Platform.OS === 'ios' ? -90 : 10
+      }
+      style={styles.status_x}
+    >
       <View style={styles.main_Row12}>
         <View style={styles.back_view12}>
           <TouchableOpacity onPress={handleGoBack}>
@@ -313,6 +415,7 @@ export const VoteAfter = ({ navigation, route }) => {
           {/* 공유 버튼 */}
         </View>
       </View>
+
       <ScrollView>
         <View style={styles.VoteBefore_View1_All}>
           <View>
@@ -368,9 +471,6 @@ export const VoteAfter = ({ navigation, route }) => {
             );
           })}
 
-          <View style={styles.VoteBefore_View2_Row}></View>
-          {/* 댓글창 경계선 */}
-
           <View>
             <Text style={styles.VoteBefore_View3_comment}>
               댓글 {comments.length}
@@ -384,10 +484,36 @@ export const VoteAfter = ({ navigation, route }) => {
             </Text>
           </TouchableOpacity>
           {/* 댓글정렬버튼 */}
+          <View style={styles.VoteBefore_View2_Row1}></View>
+          {/* 댓글창 경계선 */}
 
-          <View style={styles.VoteBefore_View3_Row2}></View>
-          {/* 댓글 윗경계 */}
+          <View>
+            {showReplyInput && (
+              <View>
+                <TextInput
+                  style={styles.VoteAfter_View3_commenttext}
+                  placeholder="답글을 입력하세요."
+                  value={replyText}
+                  onChangeText={(text) =>
+                    setReplyText(text)
+                  }
+                />
+                <TouchableOpacity
+                  style={styles.VoteAfter_View3_textinput}
+                  onPress={handleAddReplySubmit}
+                >
+                  <Entypo
+                    name="direction"
+                    size={24}
+                    color="tomato"
+                  />
+                </TouchableOpacity>
+                {/* 추가된 부분: 답글 전송 버튼 */}
+              </View>
+            )}
+          </View>
 
+          {/* 답글출력창 */}
           <View>
             {comments.map((comment, index) => (
               <Comment
@@ -399,70 +525,6 @@ export const VoteAfter = ({ navigation, route }) => {
           </View>
           {/* 댓글출력창 */}
 
-          {showReplyInput && (
-            <View>
-              <TextInput
-                style={styles.VoteAfter_View3_commenttext}
-                placeholder="답글을 입력하세요."
-                value={replyText}
-                onChangeText={(text) => setReplyText(text)}
-              />
-              <TouchableOpacity
-                style={styles.VoteAfter_View3_textinput}
-                onPress={handleAddReply}
-              >
-                <Entypo
-                  name="direction"
-                  size={24}
-                  color="tomato"
-                />
-              </TouchableOpacity>
-              {commentError !== '' && (
-                <Text style={styles.VoteAfter_View3_error}>
-                  {commentError}
-                </Text>
-              )}
-            </View>
-          )}
-          {/* 답글출력창 */}
-
-          <View style={styles.VoteAfter_View3_comment}>
-            {/* 댓글입력창 */}
-            <TouchableOpacity
-              onPress={() => {
-                setComments([...comments, commentText]);
-                setCommentText('');
-              }}
-            ></TouchableOpacity>
-          </View>
-
-          <View>
-            <TextInput
-              style={styles.VoteAfter_View3_commenttext}
-              placeholder="댓글을 입력하세요."
-              value={commentText}
-              onChangeText={(text) => {
-                setCommentText(text);
-                setCommentError('');
-              }}
-            />
-          </View>
-          {/* 댓글입력창 텍스트 */}
-
-          <View>
-            {/* 댓글입력버튼 */}
-            <TouchableOpacity
-              style={styles.VoteAfter_View3_textinput}
-              onPress={handleCommentSubmit}
-            >
-              <Entypo
-                name="direction"
-                size={24}
-                color="#4B89DC"
-              />
-            </TouchableOpacity>
-          </View>
-
           <View>
             {commentError !== '' && (
               <Text style={styles.VoteAfter_View3_error}>
@@ -472,6 +534,44 @@ export const VoteAfter = ({ navigation, route }) => {
           </View>
         </View>
       </ScrollView>
-    </View>
+
+      <View style={styles.VoteAfter_View3_comment_View}>
+        <View style={styles.VoteAfter_View3_comment}>
+          {/* 댓글입력창 */}
+          <TouchableOpacity
+            onPress={() => {
+              setComments([...comments, commentText]);
+              setCommentText('');
+            }}
+          ></TouchableOpacity>
+        </View>
+
+        <View>
+          <TextInput
+            style={styles.VoteAfter_View3_commenttext}
+            placeholder="댓글을 입력하세요."
+            value={commentText}
+            onChangeText={(text) => {
+              setCommentText(text);
+              setCommentError('');
+            }}
+          />
+        </View>
+        <View>
+          <TouchableOpacity
+            style={styles.VoteAfter_View3_textinput}
+            onPress={handleCommentSubmit}
+          >
+            <Entypo
+              name="direction"
+              size={24}
+              color="#4B89DC"
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* 댓글입력창 텍스트 */}
+    </KeyboardAvoidingView>
   );
 };

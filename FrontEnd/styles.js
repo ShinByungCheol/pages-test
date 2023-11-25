@@ -1117,6 +1117,15 @@ export const styles = StyleSheet.create({
     borderBottomColor: '#BDBDBD',
     borderBottomWidth: h * 0.0012,
   }, //view2,view3 경계선
+  VoteBefore_View2_Row1: {
+    flexDirection: 'row',
+    marginLeft: w * 0.025,
+
+    marginBottom: w * 0.03,
+    width: w * 0.85,
+    borderBottomColor: '#BDBDBD',
+    borderBottomWidth: h * 0.0012,
+  }, //view2,view3 경계선
   VoteBefore_View3_comment: {
     marginBottom: h * 0.02,
     marginLeft: w * 0.02,
@@ -1151,15 +1160,17 @@ export const styles = StyleSheet.create({
     fontSize: 20,
   }, //투표하기버튼 문구
   VoteBefore_View3_Sort: {
-    fontSize: 13,
+    fontSize: h * 0.015,
     color: 'gray',
     marginLeft: w * 0.78,
-    marginTop: -h * 0.035,
+    marginTop: -h * 0.033,
   }, //댓글정렬버튼
-  VoteAfter_View3_comment: {
-    marginTop: h * 0.05,
-    marginRight: w * 0.8,
-  }, //댓글입력칸
+  VoteAfter_View3_comment_View: {
+    marginLeft: w * 0.037,
+    marginTop: -h * 0.007,
+    marginBottom: h * 0.02,
+  },
+
   VoteAfter_View3_commenttext: {
     backgroundColor: 'white',
     borderColor: 'black',
@@ -1192,6 +1203,7 @@ export const styles = StyleSheet.create({
     marginLeft: w * 0.02,
   }, //댓글작성시간
   VoteAfter_View3_like: {
+    flexDirection: 'row',
     marginRight: w * 0.03,
     marginLeft: w * 0.04,
   }, //좋아요버튼
@@ -1201,8 +1213,14 @@ export const styles = StyleSheet.create({
     marginLeft: w * 0.02,
   }, //닉네임표시
   VoteAfter_View3_report: {
-    marginLeft: w * 0.5,
+    flexDirection: 'row',
+    marginLeft: w * 0.2,
   }, //신고버튼
+  VoteAfter_View3_report_text: {
+    marginLeft: w * 0.02,
+    marginTop: h * 0.005,
+    color: 'red',
+  },
   VoteAfter_View3_text: {
     fontSize: h * 0.012,
     marginLeft: w * 0.02,
@@ -1220,8 +1238,7 @@ export const styles = StyleSheet.create({
     marginLeft: w * 0.83,
   }, //공유버튼
   VoteAfter_View3_recomment: {
-    marginLeft: w * 0.75,
-    marginRight: -w * 1.4,
+    marginLeft: w * 0.7,
   }, //답글버튼
   VoteAfter_View3_recommenttext: {
     fontSize: 13,
@@ -1239,7 +1256,8 @@ export const styles = StyleSheet.create({
   VoteAfter_View3_totalLikenumber: {
     fontSize: h * 0.012,
     color: 'gray',
-    marginLeft: w * 0.01,
+    marginLeft: w * 0.02,
+    marginTop: h * 0.008,
   }, //좋아요합계숫자
-  status_x: { marginTop: h * 0.05 },
+  status_x: { marginTop: h * 0.05, marginBottom: h * 0.17 },
 });

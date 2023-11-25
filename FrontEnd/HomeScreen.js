@@ -13,7 +13,7 @@ import { Feather } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios';
 import moment from 'moment';
-
+import { useFocusEffect } from '@react-navigation/native';
 // 페이지 인디케이터(점)
 export function PageIndicator({ currentPage, totalPages }) {
   const indicators = [];
@@ -172,11 +172,12 @@ export const HomeScreen = ({ navigation, route }) => {
     // Call the fetchData function to fetch messages when the component mounts
     fetchData();
   }, [updateDM]);
+
   // 투표 데이터 받아오기
-  useEffect(() => {
-    const voteData = async () => {
-      try {
-        if (votes.length >= 0) {
+  useFocusEffect(
+    React.useCallback(() => {
+      const voteData = async () => {
+        try {
           const response = await axios.get(
             'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/polls/all',
             {
@@ -202,9 +203,10 @@ export const HomeScreen = ({ navigation, route }) => {
                   category: vote.category,
                   title: vote.title,
                   question: vote.question,
-                  likedUser: vote.likedUserNicknames,
-                  choices: Array.isArray(vote.choices)
-                    ? vote.choices.map((choice) => ({
+                  likesCount: vote.likesCount,
+                  likedUsers: vote.likedUsernames,
+                  choices: Array.isArray(vote.choice)
+                    ? vote.choice.map((choice) => ({
                         id: choice.id,
                         text: choice.text,
                       }))
@@ -229,15 +231,15 @@ export const HomeScreen = ({ navigation, route }) => {
               response.data
             );
           }
+        } catch (error) {
+          console.error('투표 데이터 가져오기:', error);
         }
-      } catch (error) {
-        console.error('투표 데이터 가져오기:', error);
-      }
-    };
+      };
 
-    // Call the voteData function to fetch votes when the component mounts
-    voteData();
-  }, [updateDM]);
+      // Call the voteData function to fetch votes when the screen is focused
+      voteData();
+    }, [jwtToken]) // Add any dependencies that should trigger a re-fetch
+  );
 
   const handleProfilePress = () => {
     if (isLoggedIn) {
@@ -342,15 +344,14 @@ export const HomeScreen = ({ navigation, route }) => {
       }
     });
 
-    // Render posts only for the current page
-    if (index < sortedVotes.length) {
-      // Check if there are votes for the current index
+    // Render only the top three votes
+    if (index < 3 && index < sortedVotes.length) {
       const vote = sortedVotes[index];
 
       if (vote) {
         return (
           <TouchableOpacity
-            key={`${category}-${title}`}
+            key={`${category}-${title}-${index}`}
             onPress={() => renderPostPress(category, vote)}
           >
             <View>
