@@ -242,13 +242,22 @@ export const VoteAfter = ({ navigation, route }) => {
 
   const [heartType, setHeartType] = useState('empty');
   // 여기까지 좋아요~
-
-  const handleReplyPress = (index) => {
-    // 답글 달기 버튼 누를 때의 처리
-    // index를 사용하여 해당 댓글에 대한 답글 입력 등의 처리를 가능
-    setReplyingIndex(index);
-    setReplyText('');
+  // Add a new state variable
+  const [isReplyMode, setIsReplyMode] = useState(false);
+  const handleReplyPress = (comment, index) => {
+    if (replyingIndex === index) {
+      // If the reply button is pressed again, reset to a regular comment
+      setReplyingIndex(null);
+      setReplyText('');
+      setIsReplyMode(false); // Turn off reply mode
+    } else {
+      // Set the replying index and pre-fill the reply input with the username
+      setReplyingIndex(index);
+      setReplyText(`@${comment.writer} `);
+      setIsReplyMode(true); // Turn on reply mode
+    }
     setShowReplyInput(true);
+    setCommentText(''); // Reset regular comment text
   };
 
   const handleGoBack = () => {
@@ -487,32 +496,6 @@ export const VoteAfter = ({ navigation, route }) => {
           <View style={styles.VoteBefore_View2_Row1}></View>
           {/* 댓글창 경계선 */}
 
-          <View>
-            {showReplyInput && (
-              <View>
-                <TextInput
-                  style={styles.VoteAfter_View3_commenttext}
-                  placeholder="답글을 입력하세요."
-                  value={replyText}
-                  onChangeText={(text) =>
-                    setReplyText(text)
-                  }
-                />
-                <TouchableOpacity
-                  style={styles.VoteAfter_View3_textinput}
-                  onPress={handleAddReplySubmit}
-                >
-                  <Entypo
-                    name="direction"
-                    size={24}
-                    color="tomato"
-                  />
-                </TouchableOpacity>
-                {/* 추가된 부분: 답글 전송 버튼 */}
-              </View>
-            )}
-          </View>
-
           {/* 답글출력창 */}
           <View>
             {comments.map((comment, index) => (
@@ -549,10 +532,16 @@ export const VoteAfter = ({ navigation, route }) => {
         <View>
           <TextInput
             style={styles.VoteAfter_View3_commenttext}
-            placeholder="댓글을 입력하세요."
-            value={commentText}
+            placeholder={
+              isReplyMode
+                ? '답글을 입력하세요.'
+                : '댓글을 입력하세요.'
+            }
+            value={isReplyMode ? replyText : commentText}
             onChangeText={(text) => {
-              setCommentText(text);
+              isReplyMode
+                ? setReplyText(text)
+                : setCommentText(text);
               setCommentError('');
             }}
           />
@@ -560,7 +549,11 @@ export const VoteAfter = ({ navigation, route }) => {
         <View>
           <TouchableOpacity
             style={styles.VoteAfter_View3_textinput}
-            onPress={handleCommentSubmit}
+            onPress={
+              isReplyMode
+                ? handleAddReplySubmit
+                : handleCommentSubmit
+            }
           >
             <Entypo
               name="direction"
