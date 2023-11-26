@@ -26,8 +26,9 @@ export const VoteAfter = ({ navigation, route }) => {
     userVotes,
   } = route.params;
 
-  const [updateDM5, setUpdateDM5] = useState(1);
-  const [comments, setComments] = useState([]);
+  const [updateDM5, setUpdateDM5] = useState(1); // 이동 변수
+
+  const [comments, setComments] = useState([]); // 댓글
   const [pollOptions, setPollOptions] = useState([]);
   const newChoices = vote.choices.map((choice) => ({
     id: choice.id,
@@ -37,6 +38,63 @@ export const VoteAfter = ({ navigation, route }) => {
   const [commentText, setCommentText] = useState('');
   const [commentError, setCommentError] = useState('');
   const [commentBox, setCommentBox] = useState([]);
+  const [heartType, setHeartType] = useState('empty');
+
+  const [isReplyMode, setIsReplyMode] = useState(false);
+
+  const [showReplyInput, setShowReplyInput] =
+    useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [replyingIndex, setReplyingIndex] = useState(null);
+  const [replycommentBox, setReplycommentBox] = useState(
+    []
+  );
+
+  // Check if the current user's nickname is in the likedUsers array
+  useEffect(() => {
+    if (
+      vote.likedUsers &&
+      vote.likedUsers.includes(nickname)
+    ) {
+      setHeartType('filled');
+    }
+  }, [vote, nickname]);
+  //게시글 좋아요
+  const handleHeartClick = async () => {
+    const data = {
+      pollId: vote.id,
+      nickname: nickname,
+    };
+
+    console.log(data);
+
+    try {
+      const response = await axios.post(
+        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/polls/likes',
+        data,
+        {
+          headers: {
+            'AUTH-TOKEN': jwtToken,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log(response.data);
+
+        setHeartType((prev) =>
+          prev === 'empty' ? 'filled' : 'empty'
+        );
+      } else {
+        console.error('Failed to likes:', response.data);
+      }
+    } catch (error) {
+      console.error('게시글 좋아요 :', error);
+    }
+
+    console.log('userVotes : ', userVotes);
+    console.log('vote : ', vote);
+  };
   //게시글 id로 댓글 조회해서 받아오기
   useEffect(() => {
     const fetchcommentData = async () => {
@@ -54,10 +112,10 @@ export const VoteAfter = ({ navigation, route }) => {
         if (response.status === 200) {
           // Assuming the response data is an array of messages
           const messagesData = response.data;
-          // console.log(
-          //   '투표 id 보내서 댓글 조회 하기',
-          //   JSON.stringify(response.data, null, 2)
-          // );
+          console.log(
+            '투표 id 보내서 댓글 조회 하기',
+            JSON.stringify(response.data, null, 2)
+          );
           // Extracting and mapping relevant data from the response
           const formattedMessages = messagesData.map(
             (message) => ({
@@ -84,7 +142,6 @@ export const VoteAfter = ({ navigation, route }) => {
     // Call the fetchData function to fetch messages when the component mounts
     fetchcommentData();
   }, [updateDM5]);
-
   // 댓글 생성
   const handleCommentSubmit = async () => {
     // 유효성 검사: 댓글 내용이 비어있는지 확인
@@ -115,7 +172,8 @@ export const VoteAfter = ({ navigation, route }) => {
 
       if (response.status === 201) {
         console.log('댓글 작성 성공:', response.data);
-
+        // Increment updateDM by 1
+        setUpdateDM5(updateDM5 + 1);
         // Update commentBox state with the new comment data
         setCommentBox((prevCommentBox) => [
           ...prevCommentBox,
@@ -130,7 +188,6 @@ export const VoteAfter = ({ navigation, route }) => {
       console.error('댓글 작성 오류:', error);
     }
   };
-
   //댓글 출력 창
   const Comment = ({ comment, index }) => {
     return (
@@ -208,10 +265,9 @@ export const VoteAfter = ({ navigation, route }) => {
       </View>
     );
   };
-
   // 댓글 좋아요~
   const commentLike = async (comment, index) => {
-    console.log('comment ', comment);
+    console.log('comment ', comment.id);
     try {
       const response = await axios.post(
         `https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/api/comments/like/${userId}/${vote.id}/${comment.id}`,
@@ -239,11 +295,7 @@ export const VoteAfter = ({ navigation, route }) => {
       console.error('댓글 좋아요 보내기:', error);
     }
   };
-
-  const [heartType, setHeartType] = useState('empty');
   // 여기까지 좋아요~
-  // Add a new state variable
-  const [isReplyMode, setIsReplyMode] = useState(false);
   const handleReplyPress = (comment, index) => {
     if (replyingIndex === index) {
       // If the reply button is pressed again, reset to a regular comment
@@ -259,34 +311,29 @@ export const VoteAfter = ({ navigation, route }) => {
     setShowReplyInput(true);
     setCommentText(''); // Reset regular comment text
   };
-
-  const handleGoBack = () => {
-    // navigation.goBack()을 호출하여 이전 화면으로 이동
-    navigation.goBack({});
-  };
-
-  const [showReplyInput, setShowReplyInput] =
-    useState(false);
-  const [replyText, setReplyText] = useState('');
-  const [replyingIndex, setReplyingIndex] = useState(null);
-  const [replycommentBox, setReplycommentBox] = useState(
-    []
-  );
-
   // 대댓글 작성
-  const handleAddReplySubmit = async (comment, index) => {
+  const handleAddReplySubmit = async () => {
     if (replyText.trim() === '') {
       setCommentError('답글 내용을 입력하세요.');
+      return;
+    }
+    if (!isReplyMode || replyingIndex === null) {
+      console.error(
+        'Invalid reply mode or replying index.'
+      );
       return;
     }
     const commentData = {
       comment: replyText,
     };
+    const commentId = comments[replyingIndex].id; // Get the comment ID
     console.log(commentData);
+    console.log(commentId);
+
     // 서버로 댓글 전송
     try {
       const response = await axios.post(
-        `https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/api/comments/${userId}/${vote.id}/${comment.id}`,
+        `https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/api/comments/${userId}/${vote.id}/${commentId}`,
         commentData,
         {
           headers: {
@@ -297,9 +344,7 @@ export const VoteAfter = ({ navigation, route }) => {
       // Increment updateDM by 1
       setUpdateDM5(updateDM5 + 1);
 
-      console.log('변경 전', updateDM5);
       if (response.status === 200) {
-        console.log('변경 후', updateDM5);
         console.log(
           '답글 작성 성공',
           JSON.stringify(response.data, null, 2)
@@ -308,14 +353,25 @@ export const VoteAfter = ({ navigation, route }) => {
         console.error('답글 작성 실패', response.data);
       }
     } catch (error) {
-      console.error('답글 작성 오류~:', error);
+      console.error('답글 작성 오류~:', error, commentId);
     }
     setShowReplyInput(false);
     setReplyText('');
     setReplyingIndex(null);
     setCommentError('');
   };
-
+  const handleReportPress = (index) => {
+    // 신고 버튼 누를 때의 처리
+    // index를 사용하여 해당 댓글의 상태를 업데이트 가능
+    const updatedComments = comments.map((comment, i) =>
+      i === index ? { ...comment, reported: true } : comment
+    );
+    setComments(updatedComments);
+  };
+  const handleGoBack = () => {
+    // navigation.goBack()을 호출하여 이전 화면으로 이동
+    navigation.goBack({});
+  };
   const getRecommendCount = (comment) => {
     // 해당 댓글의 추천수를 가져오는 로직을 추가
     // 댓글 객체에 추천수를 저장하고 그 값을 반환하는 방식으로 구현
@@ -325,42 +381,6 @@ export const VoteAfter = ({ navigation, route }) => {
     //쪽지를 보내는 로직을 추가
 
     console.log(`Sending a message to: ${comment.author}`);
-  };
-  const handleHeartClick = async () => {
-    const data = {
-      pollId: vote.id,
-      nickname: nickname,
-    };
-
-    console.log(data);
-
-    try {
-      const response = await axios.post(
-        'https://port-0-capstone-project-2-ysl2bloxtgnwh.sel5.cloudtype.app/polls/likes',
-        data,
-        {
-          headers: {
-            'AUTH-TOKEN': jwtToken,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        console.log(response.data);
-
-        // Toggle the like state based on whether the user's nickname is in likedUser
-        const isUserLiked =
-          vote.likedUser.includes(nickname);
-        setHeartType(isUserLiked ? 'empty' : 'filled');
-      } else {
-        console.error('Failed to likes:', response.data);
-      }
-    } catch (error) {
-      console.error('게시글 좋아요 :', error);
-    }
-
-    console.log('userVotes : ', userVotes);
-    console.log('vote : ', vote);
   };
   const handleLikePress = (index) => {
     // 추천 버튼 누를 때의 처리
@@ -372,14 +392,7 @@ export const VoteAfter = ({ navigation, route }) => {
     );
     setComments(updatedComments);
   };
-  const handleReportPress = (index) => {
-    // 신고 버튼 누를 때의 처리
-    // index를 사용하여 해당 댓글의 상태를 업데이트 가능
-    const updatedComments = comments.map((comment, i) =>
-      i === index ? { ...comment, reported: true } : comment
-    );
-    setComments(updatedComments);
-  };
+
   return (
     <KeyboardAvoidingView
       behavior={

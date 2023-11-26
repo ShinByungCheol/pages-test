@@ -23,13 +23,10 @@ export const VoteMake = ({ navigation, route }) => {
     nickname,
     updateDM2,
   } = route.params;
-
   // 제목 입력
   const [titleInput, setTitleInput] = useState('');
-
   // 본문 입력
   const [description, setDescription] = useState('');
-
   // 카테고리 선택
   const [selectedCategory, setSelectedCategory] =
     useState('');
@@ -47,10 +44,8 @@ export const VoteMake = ({ navigation, route }) => {
     { label: '반려동물', value: '반려동물' },
     { label: '음식', value: '음식' },
   ];
-
   // 선택 사항
   const [options, setOptions] = useState(['', '']);
-
   // 선택 사항 추가
   const addOption = () => {
     if (options.length < 4) {
@@ -62,7 +57,6 @@ export const VoteMake = ({ navigation, route }) => {
       );
     }
   };
-
   // 선택 사항 삭제
   const removeOption = (indexToRemove) => {
     if (options.length > 2) {
@@ -77,7 +71,6 @@ export const VoteMake = ({ navigation, route }) => {
       );
     }
   };
-
   // 투표 생성
   const createVote = async () => {
     if (titleInput.trim() === '') {
